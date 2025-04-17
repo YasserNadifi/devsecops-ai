@@ -2,6 +2,7 @@ package com.example.farme.Service;
 
 import com.example.farme.Repository.FieldRepository;
 import com.example.farme.model.Field;
+import com.example.farme.model.IrrigationScheduleResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -51,4 +52,9 @@ public class FieldServiceImpl  implements FieldService{
     public List<Field> getAllFields(){
         return fieldRepository.findAll();}
 
+    @Override
+    public IrrigationScheduleResponse generateIrrigationSchedule(Long fieldId) {
+        //  la logique OpenET + calculs
+        return null;
+    }
 }

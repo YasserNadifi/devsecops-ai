@@ -2,6 +2,7 @@ package com.example.farme.Controller;
 
 import com.example.farme.model.Field;
 import com.example.farme.Service.FieldServiceImpl;
+import com.example.farme.model.IrrigationScheduleResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,8 +33,10 @@ public class FieldController {
     }
 
 
-
-
+    @GetMapping("/{id}/irrigation-schedule")
+    public ResponseEntity<IrrigationScheduleResponse> getSchedule(@PathVariable Long id) {
+        return ResponseEntity.ok(fieldService.generateIrrigationSchedule(id));
+    }
 
 
 

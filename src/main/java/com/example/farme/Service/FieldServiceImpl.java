@@ -3,6 +3,7 @@ package com.example.farme.Service;
 import com.example.farme.Repository.FieldRepository;
 import com.example.farme.model.Field;
 import com.example.farme.model.IrrigationScheduleResponse;
+import com.example.farme.utils.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,11 +26,12 @@ public class FieldServiceImpl  implements FieldService{
     }
 
     @Override
-    public Field deleteField(Long id){
-        Field field = fieldRepository.findById(id).orElse(null);
+    public Field deleteField(Long id) {
+        Field field = fieldRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Field not found"));
         fieldRepository.delete(field);
         return field;
     }
+
 
     @Override
     public Field updateField(Field field) {
@@ -55,6 +57,25 @@ public class FieldServiceImpl  implements FieldService{
     @Override
     public IrrigationScheduleResponse generateIrrigationSchedule(Long fieldId) {
         //  la logique OpenET + calculs
+        //récupérer le champ
+        Field field = fieldRepository.findById(fieldId)
+                .orElseThrow(() -> new IllegalArgumentException("Champ non trouvé"));
+        //calcul de la surface
+        double areaInSquareMeters = GeoUtils.calculateArea(field.getCoordinates());
+        //coefficient Kc
+        double kc = CropCoefficientUtils.getKc(field.getCropType(), field.getGrowthStage());
+        // OpenET
+        @Autowired
+        private OpenETClient openETClient;
+
+        @Autowired
+        private OpenMeteoClient openMeteoClient;
+
+
+        List<Double> etData = openETClient.getDailyETData(field.getCoordinates());
+        //Open-Meteo
+        List<Double> precipitationData = openMeteoClient.getDailyPrecipitationData(field.getCoordinates());
+
         return null;
     }
 }

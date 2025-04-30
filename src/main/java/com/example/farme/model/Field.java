@@ -21,4 +21,16 @@ public class Field {
     private double flowRate;
 
     // Getters and Setters
+
+    public String getGrowthStage() {
+        return growthStage;
+    }
+
+    public String getCropType() {
+        return cropType;
+    }
+
+    public List<Coordinate> getCoordinates() {
+        return coordinates;
+    }
 }

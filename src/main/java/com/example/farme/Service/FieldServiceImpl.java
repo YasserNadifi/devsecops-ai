@@ -68,16 +68,37 @@ public class FieldServiceImpl  implements FieldService{
                 .orElseThrow(() -> new IllegalArgumentException("Champ non trouvé"));
         //calcul de la surface
         double areaInSquareMeters = GeoUtils.calculateArea(field.getCoordinates());
+
+        System.out.println("Champ récupéré : " + field.getId());
+        System.out.println("Surface du champ (m²) : " + areaInSquareMeters);
+
         //coefficient Kc
         double kc = CropCoefficientUtils.getKc(field.getCropType(), field.getGrowthStage());
+
+        System.out.println("CropType : " + field.getCropType());
+        System.out.println("GrowthStage : " + field.getGrowthStage());
+        System.out.println("Kc utilisé : " + kc);
+
         // OpenET
 
-
-
         List<Double> etData = openETClient.getDailyETData(field.getCoordinates());
+
+        System.out.println("Valeurs ET₀ récupérées depuis OpenET :");
+        for (int i = 0; i < etData.size(); i++) {
+            System.out.println("Jour " + (i + 1) + " → ET₀ = " + etData.get(i) + " mm");
+        }
+
         //Open-Meteo
         List<Double> precipitationData = openMeteoClient.getDailyPrecipitationData(field.getCoordinates());
 
-        return null;
+        System.out.println("Précipitations récupérées depuis Open-Meteo :");
+        for (int i = 0; i < precipitationData.size(); i++) {
+            System.out.println("Jour " + (i + 1) + " → Pluie = " + precipitationData.get(i) + " mm");
+        }
+
+        IrrigationScheduleResponse response = new IrrigationScheduleResponse();
+        response.setFieldId(fieldId);
+
+        return response;
     }
 }

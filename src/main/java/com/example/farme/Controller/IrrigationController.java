@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.example.farme.dto.FieldRequest;
 
 @RestController
 @RequestMapping("/irrigation/schedule")
@@ -18,7 +19,7 @@ public class IrrigationController {
 
     @PostMapping
     public ResponseEntity<IrrigationScheduleResponse> getIrrigationPlan(@RequestBody FieldRequest request) {
-        IrrigationScheduleResponse result = irrigationService.(request);
+        IrrigationScheduleResponse result = irrigationService.generateIrrigationSchedule(request);
         return ResponseEntity.ok(result);
     }
 

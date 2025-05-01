@@ -1,6 +1,7 @@
 package com.example.farme.Service;
 
 import com.example.farme.model.Field;
+import com.example.farme.model.IrrigationScheduleResponse;
 
 import java.util.List;
 
@@ -11,4 +12,7 @@ public interface FieldService {
     Field deleteField(Long id);
     Field updateField(Field field);
     List<Field> getAllFields();
+
+    IrrigationScheduleResponse generateIrrigationSchedule(Long fieldId);
+
 }

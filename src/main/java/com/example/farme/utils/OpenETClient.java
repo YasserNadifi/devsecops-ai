@@ -1,17 +1,26 @@
 package com.example.farme.utils;
 
+import com.example.farme.Dto.OpenETRequestBody;
+import com.example.farme.Dto.OpenETResponse;
 import com.example.farme.model.Coordinate;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class OpenETClient {
 
-    private static final String API_URL = "https://openet-api-url.example.com/evapotranspiration"; // ici tu mets la vraie URL de OpenET
+    @Value("${openet.api.key}")
+    private String apiKey;
+
+    @Value("${openet.api.url}")
+    private String apiUrl;
 
     private final RestTemplate restTemplate;
 
@@ -20,33 +29,39 @@ public class OpenETClient {
     }
 
     public List<Double> getDailyETData(List<Coordinate> coordinates) {
-        // 1. Construire la requête HTTP
-        double latitude = coordinates.get(0).getLatitude(); // pour simplifier, on prend premier point
-        double longitude = coordinates.get(0).getLongitude();
+        double avgLat = coordinates.stream().mapToDouble(Coordinate::getLatitude).average().orElse(0.0);
+        double avgLon = coordinates.stream().mapToDouble(Coordinate::getLongitude).average().orElse(0.0);
 
-        String url = API_URL + "?lat=" + latitude + "&lon=" + longitude;
+        OpenETRequestBody body = new OpenETRequestBody();
+        body.setDate_range(List.of("2025-04-08", "2025-04-14"));
+        body.setGeometry(List.of(avgLon, avgLat));
 
-        // 2. Envoyer la requête
-        ResponseEntity<OpenETResponse> response = restTemplate.getForEntity(url, OpenETResponse.class);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("Authorization", apiKey);
 
-        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-            // 3. Extraire les valeurs ET₀ de la réponse
-            return response.getBody().getEt0Daily();
-        } else {
-            return new ArrayList<>(); // liste vide si erreur
-        }
-    }
+        HttpEntity<OpenETRequestBody> entity = new HttpEntity<>(body, headers);
 
-    // 4. Classe interne pour mapper le JSON de la réponse OpenET
-    public static class OpenETResponse {
-        private List<Double> et0Daily;
+        try {
+            ResponseEntity<OpenETResponse> response = restTemplate.exchange(
+                    apiUrl,
+                    HttpMethod.POST,
+                    entity,
+                    OpenETResponse.class
+            );
 
-        public List<Double> getEt0Daily() {
-            return et0Daily;
-        }
+            if (response.getStatusCode().is2xxSuccessful()) {
+                return response.getBody().getData()
+                        .stream()
+                        .map(OpenETResponse.DataPoint::getEt)
+                        .collect(Collectors.toList());
+            } else {
+                return Collections.emptyList();
+            }
 
-        public void setEt0Daily(List<Double> et0Daily) {
-            this.et0Daily = et0Daily;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList();
         }
     }
 }

@@ -17,6 +17,12 @@ public class FieldServiceImpl  implements FieldService{
     @Autowired
     private FieldRepository fieldRepository;
 
+    @Autowired
+    private OpenETClient openETClient;
+
+    @Autowired
+    private OpenMeteoClient openMeteoClient;
+
     @Override
     public Field saveField(Field field){ return fieldRepository.save(field);}
 
@@ -65,11 +71,7 @@ public class FieldServiceImpl  implements FieldService{
         //coefficient Kc
         double kc = CropCoefficientUtils.getKc(field.getCropType(), field.getGrowthStage());
         // OpenET
-        @Autowired
-        private OpenETClient openETClient;
 
-        @Autowired
-        private OpenMeteoClient openMeteoClient;
 
 
         List<Double> etData = openETClient.getDailyETData(field.getCoordinates());

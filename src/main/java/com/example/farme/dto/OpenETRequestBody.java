@@ -1,4 +1,4 @@
-package com.example.farme.Dto;
+package com.example.farme.dto;
 
 import java.util.List;
 

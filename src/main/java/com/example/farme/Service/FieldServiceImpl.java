@@ -2,11 +2,13 @@ package com.example.farme.Service;
 
 import com.example.farme.Repository.FieldRepository;
 import com.example.farme.model.Field;
+import com.example.farme.model.IrrigationDayPlan;
 import com.example.farme.model.IrrigationScheduleResponse;
 import com.example.farme.utils.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
@@ -82,6 +84,7 @@ public class FieldServiceImpl  implements FieldService{
         // OpenET
 
         List<Double> etData = openETClient.getDailyETData(field.getCoordinates());
+        //List<Double> etData = Arrays.asList(5.1, 5.3, 5.0, 4.8, 5.2, 5.0, 5.4);  // fake ET0
 
         System.out.println("Valeurs ET₀ récupérées depuis OpenET :");
         for (int i = 0; i < etData.size(); i++) {
@@ -90,14 +93,21 @@ public class FieldServiceImpl  implements FieldService{
 
         //Open-Meteo
         List<Double> precipitationData = openMeteoClient.getDailyPrecipitationData(field.getCoordinates());
+        //List<Double> precipitationData = Arrays.asList(1.0, 0.5, 0.0, 0.0, 1.2, 2.0, 0.7);  // fake rain
 
         System.out.println("Précipitations récupérées depuis Open-Meteo :");
         for (int i = 0; i < precipitationData.size(); i++) {
             System.out.println("Jour " + (i + 1) + " → Pluie = " + precipitationData.get(i) + " mm");
         }
 
+        List<IrrigationDayPlan> schedule = IrrigationUtils.generateSchedule(
+                areaInSquareMeters, kc, field.getFlowRate(), etData, precipitationData
+        );
+
         IrrigationScheduleResponse response = new IrrigationScheduleResponse();
         response.setFieldId(fieldId);
+        response.setFieldName(field.getName());
+        response.setSchedule(schedule);
 
         return response;
     }

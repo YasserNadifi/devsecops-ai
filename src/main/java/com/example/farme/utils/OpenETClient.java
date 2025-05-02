@@ -10,6 +10,10 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Backoff;
+
 
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +39,11 @@ public class OpenETClient {
         this.restTemplate = restTemplate;
     }
 
+    @Retryable(
+            value = { org.springframework.web.client.ResourceAccessException.class },
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 5000) // 5s delay between attempts
+    )
     public List<Double> getDailyETData(List<Coordinate> coordinates) {
 
         if (coordinates == null || coordinates.isEmpty()) {
@@ -48,7 +57,7 @@ public class OpenETClient {
         System.out.println("Coordonnées envoyées à OpenET : Lon = " + avgLon + " / Lat = " + avgLat);
 
         OpenETRequestBody body = new OpenETRequestBody();
-        body.setDate_range(List.of("2025-04-01", "2025-04-08"));
+        body.setDate_range(List.of("2025-04-03", "2025-04-10"));
         body.setGeometry(List.of(avgLon, avgLat));
 
         HttpHeaders headers = new HttpHeaders();
@@ -80,4 +89,11 @@ public class OpenETClient {
             return Collections.emptyList();
         }
     }
+
+    @Recover
+    public List<Double> recover(org.springframework.web.client.ResourceAccessException e, List<Coordinate> coordinates) {
+        System.err.println("Echec apres plusieurs tentatives d'appel OpenET : " + e.getMessage());
+        return Collections.emptyList();
+    }
+
 }

@@ -57,7 +57,7 @@ public class OpenETClient {
         System.out.println("Coordonnées envoyées à OpenET : Lon = " + avgLon + " / Lat = " + avgLat);
 
         OpenETRequestBody body = new OpenETRequestBody();
-        body.setDate_range(List.of("2025-04-03", "2025-04-10"));
+        body.setDate_range(List.of("2025-04-01", "2025-04-08"));
         body.setGeometry(List.of(avgLon, avgLat));
 
         HttpHeaders headers = new HttpHeaders();

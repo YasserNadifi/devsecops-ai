@@ -32,11 +32,6 @@ export default function FieldInfoPage() {
     });
   });
 
-  function litersToGallons(liters) {
-    const conversionFactor = 0.264172;
-    const gallons = liters * conversionFactor;
-    return gallons.toFixed(2);
-  }
 
   return (
     <div className="flex min-h-screen bg-green-50">

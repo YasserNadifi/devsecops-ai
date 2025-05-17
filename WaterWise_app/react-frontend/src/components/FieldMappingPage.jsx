@@ -43,9 +43,9 @@ export const FieldMappingPage = () => {
     try {
       const body = {
         boundaries: coordinates,
-        cropType: info.cropType,
-        growthStage: info.growthStage,
+        cropInfo : info
       };
+      console.log(body)
 
       const res = await fetch('https://api.example.com/fields', {
         method: 'POST',

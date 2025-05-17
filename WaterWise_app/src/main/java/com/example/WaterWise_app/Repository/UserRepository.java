@@ -7,11 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface UserRepo extends JpaRepository<User, Long> {
-    // Trouve un utilisateur par son username (utile pour la connexion)
+public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
-
-    // Vérifie si un username existe déjà (éviter les doublons)
     boolean existsByUsername(String username);
-
 }

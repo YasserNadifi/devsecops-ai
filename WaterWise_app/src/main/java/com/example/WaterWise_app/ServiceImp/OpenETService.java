@@ -34,18 +34,19 @@ public class OpenETService {
         double avgLat = coords.stream().mapToDouble(CoordinateEntity::getLatitude).average().orElse(0);
         double avgLon = coords.stream().mapToDouble(CoordinateEntity::getLongitude).average().orElse(0);
 
-        //double surfaceM2 = calculateFieldSurfaceM2(coords);
+        double surfaceM2 = calculateFieldSurfaceM2(coords);
         double kc = getKcCoefficient(crop.getCropType(), crop.getGrowthStage());
 
 
         // 1. Récupérer ET des 7 derniers jours
-        Map<LocalDate, Double> etoValues = getEtoValuesFromApi(avgLat, avgLon);
+        double etoToday = getTodayEtoFromApi(avgLat, avgLon);
+
 
         // 2. Récupérer précipitations pour aujourd’hui + 5 jours suivants (forecast 5 jours)
         Map<LocalDate, Double> precipitationValues = getPrecipitationFromApi(avgLat, avgLon);
 
         LocalDate today = LocalDate.now();
-        double etoToday = etoValues.getOrDefault(today, 0.0);
+
 
 
         List<DailyIrrigation> results = new ArrayList<>();
@@ -57,11 +58,12 @@ public class OpenETService {
             double adjustedET = etoToday - precipitation;
             if (adjustedET < 0) adjustedET = 0;
 
-            double waterNeedLitres = adjustedET * kc * 10;
+            double waterNeedLitres = adjustedET * kc * surfaceM2;
             results.add(new DailyIrrigation(date, waterNeedLitres));
 
         }
-
+        System.out.println("ET0 today = " + etoToday);
+        System.out.println("surfaceM2= " + surfaceM2);
 
         return results;
     }
@@ -127,57 +129,57 @@ public class OpenETService {
         return 1.0;
     }
 
-    private Map<LocalDate, Double> getEtoValuesFromApi(double lat, double lon) {
+    private double getTodayEtoFromApi(double lat, double lon) {
         try {
-            LocalDate startDate = LocalDate.now().minusDays(7);
-            LocalDate endDate = LocalDate.now();
+            LocalDate today = LocalDate.now();
+            LocalDate targetDate = today.minusDays(5);  // 3 jours avant aujourd'hui
+            String dateStr = targetDate.format(java.time.format.DateTimeFormatter.BASIC_ISO_DATE);
+            String startDate = dateStr;
+            String endDate = dateStr;
 
-            Map<String, Object> payload = new HashMap<>();
-            payload.put("date_range", Arrays.asList(startDate.toString(), endDate.toString()));
-            payload.put("interval", "daily");
-            payload.put("geometry", Arrays.asList(lon, lat)); // longitude, latitude !
-            payload.put("model", "Ensemble");
-            payload.put("variable", "ET");
-            payload.put("reference_et", "gridMET");
-            payload.put("units", "mm");
-            payload.put("file_format", "JSON");
+            String url = String.format(Locale.US,
+                    "https://power.larc.nasa.gov/api/temporal/daily/point" +
+                            "?latitude=%.6f&longitude=%.6f&start=%s&end=%s&community=AG" +
+                            "&parameters=T2M_MAX,T2M_MIN,ALLSKY_SFC_SW_DWN&format=JSON",
+                    lat, lon, startDate, endDate);
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("Authorization", OPENET_API_KEY);
 
-            HttpEntity<String> entity = new HttpEntity<>(objectMapper.writeValueAsString(payload), headers);
-
-            ResponseEntity<String> response = restTemplate.exchange(
-                    OPENET_URL,
-                    HttpMethod.POST,
-                    entity,
-                    String.class
-            );
+            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
 
             if (response.getStatusCode() != HttpStatus.OK) {
-                throw new RuntimeException("Erreur API OpenET : " + response.getStatusCode() + " " + response.getBody());
+                throw new RuntimeException("Erreur API NASA POWER : " + response.getStatusCode());
             }
 
             String jsonResponse = response.getBody();
             JsonNode root = objectMapper.readTree(jsonResponse);
 
-            Map<LocalDate, Double> etoMap = new LinkedHashMap<>();
-            for (JsonNode node : root) {
-                String dateStr = node.path("time").asText(null);
-                double eto = node.path("et").asDouble(Double.NaN);
-                if (dateStr != null && !Double.isNaN(eto)) {
-                    etoMap.put(LocalDate.parse(dateStr), eto);
-                }
+            // Accéder aux données sous "properties" -> "parameter"
+            JsonNode parameters = root.path("properties").path("parameter");
+
+            JsonNode tMaxNode = parameters.path("T2M_MAX").path(startDate);
+            JsonNode tMinNode = parameters.path("T2M_MIN").path(startDate);
+            JsonNode radNode = parameters.path("ALLSKY_SFC_SW_DWN").path(startDate);
+
+            if (tMaxNode.isMissingNode() || tMinNode.isMissingNode() || radNode.isMissingNode()) {
+                throw new RuntimeException("Données manquantes pour calcul ET0");
             }
 
-            return etoMap;
+            double tMax = tMaxNode.asDouble();
+            double tMin = tMinNode.asDouble();
+            double radiation = radNode.asDouble();
+
+            // Appliquer formule ET0 (Hargreaves)
+            double et0 = 0.0023 * 0.408 * radiation * Math.sqrt(tMax - tMin) * ((tMax + tMin) / 2 + 17.8);
+
+            return et0;
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Erreur API OpenET : " + e.getMessage(), e);
+            throw new RuntimeException("Erreur lors du calcul ET0 NASA POWER : " + e.getMessage(), e);
         }
     }
+
+
 
     /**
      * Récupère la précipitation quotidienne prévue (en mm) à partir de l'API OpenWeatherMap.

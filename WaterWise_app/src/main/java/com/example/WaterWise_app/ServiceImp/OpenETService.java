@@ -1,16 +1,14 @@
 package com.example.WaterWise_app.ServiceImp;
 
-
-
 import com.example.WaterWise_app.Entity.CoordinateEntity;
 import com.example.WaterWise_app.Entity.CropEntity;
 import com.example.WaterWise_app.Entity.FieldEntity;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -18,8 +16,8 @@ import java.util.*;
 @Service
 public class OpenETService {
 
-    private static final String API_KEY = "zr96efKx5Lng5j7QlLyWUoDxWf0E76E6kuKiOUq0HRpJtCXvkIWkYCAlhLDG"; // remplace par ta clé API si nécessaire
-    private static final String OPENET_BASE_URL = "https://api.openetdata.org/eto";
+    private static final String API_KEY = "zr96efKx5Lng5j7QlLyWUoDxWf0E76E6kuKiOUq0HRpJtCXvkIWkYCAlhLDG"; // ta clé API
+    private static final String OPENET_URL = "https://openet-api.org/raster/timeseries/point";
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -32,13 +30,13 @@ public class OpenETService {
         double avgLat = coords.stream().mapToDouble(CoordinateEntity::getLatitude).average().orElse(0);
         double avgLon = coords.stream().mapToDouble(CoordinateEntity::getLongitude).average().orElse(0);
 
-        // Surface approximative (à remplacer si tu la calcules réellement)
+        // Surface approximative (m²)
         double surfaceM2 = 1000.0;
 
-        // Coefficient cultural selon le type et stade
+        // Coefficient cultural (Kc)
         double kc = getKcCoefficient(crop.getCropType(), crop.getGrowthStage());
 
-        // Appel API pour 7 jours
+        // Appel à l'API OpenET
         Map<LocalDate, Double> etoValues = getEtoValuesFromApi(avgLat, avgLon);
 
         List<DailyIrrigation> results = new ArrayList<>();
@@ -54,71 +52,79 @@ public class OpenETService {
 
     private double getKcCoefficient(String cropType, String growthStage) {
         if (cropType.equalsIgnoreCase("Maïs")) {
-            switch (growthStage.toLowerCase()) {
-                case "germination": return 0.4;
-                case "croissance": return 0.7;
-                case "floraison": return 1.1;
-                case "recolte": return 0.7;
-            }
+            return switch (growthStage.toLowerCase()) {
+                case "germination" -> 0.4;
+                case "croissance" -> 0.7;
+                case "floraison" -> 1.1;
+                case "recolte" -> 0.7;
+                default -> 1.0;
+            };
         } else if (cropType.equalsIgnoreCase("blé")) {
-            switch (growthStage.toLowerCase()) {
-                case "germination": return 0.3;
-                case "croissance": return 0.5;
-                case "floraison": return 1.0;
-                case "recolte": return 0.6;
-            }
+            return switch (growthStage.toLowerCase()) {
+                case "germination" -> 0.3;
+                case "croissance" -> 0.5;
+                case "floraison" -> 1.0;
+                case "recolte" -> 0.6;
+                default -> 1.0;
+            };
         }
-        return 1.0; // valeur par défaut
+        return 1.0;
     }
 
     private Map<LocalDate, Double> getEtoValuesFromApi(double lat, double lon) {
         try {
-            // Construire l'URL avec les paramètres (adapté à ta vraie API)
-            String url = UriComponentsBuilder.fromHttpUrl(OPENET_BASE_URL)
-                    .queryParam("lat", lat)
-                    .queryParam("lon", lon)
-                    .queryParam("days", 7)
-                    .queryParam("api_key", API_KEY)
-                    .toUriString();
+            LocalDate startDate = LocalDate.now().minusDays(7);  // 7 jours avant aujourd’hui
+            LocalDate endDate = LocalDate.now();
 
-            // Appel HTTP GET
-            String jsonResponse = restTemplate.getForObject(url, String.class);
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("date_range", Arrays.asList(startDate.toString(), endDate.toString()));
+            payload.put("interval", "daily");
+            // Longitude puis latitude !
+            payload.put("geometry", Arrays.asList(lon, lat));
+            payload.put("model", "Ensemble");
+            payload.put("variable", "ET");  // ET = Evapotranspiration
+            payload.put("reference_et", "gridMET");
+            payload.put("units", "mm");
+            payload.put("file_format", "JSON");
 
-            // Parser la réponse JSON
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("Authorization", API_KEY);  // clé brute, sans "Bearer "
+
+            HttpEntity<String> entity = new HttpEntity<>(objectMapper.writeValueAsString(payload), headers);
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    OPENET_URL,
+                    HttpMethod.POST,
+                    entity,
+                    String.class
+            );
+
+            if (response.getStatusCode() != HttpStatus.OK) {
+                throw new RuntimeException("Erreur API OpenET : " + response.getStatusCode() + " " + response.getBody());
+            }
+
+            String jsonResponse = response.getBody();
+
+            // La réponse est une liste JSON : [{"time":"2025-05-10","et":0.56}, ...]
             JsonNode root = objectMapper.readTree(jsonResponse);
 
-            // Supposons que la réponse contient un tableau 'daily' avec des objets { date: "yyyy-MM-dd", eto: float }
-            JsonNode dailyArray = root.path("daily");
-
             Map<LocalDate, Double> etoMap = new LinkedHashMap<>();
+            for (JsonNode node : root) {
+                String dateStr = node.path("time").asText(null);
+                double eto = node.path("et").asDouble(Double.NaN);
 
-            for (JsonNode dayNode : dailyArray) {
-                String dateStr = dayNode.path("date").asText();
-                double eto = dayNode.path("eto").asDouble();
-
-                LocalDate date = LocalDate.parse(dateStr);
-                etoMap.put(date, eto);
+                if (dateStr != null && !Double.isNaN(eto)) {
+                    etoMap.put(LocalDate.parse(dateStr), eto);
+                }
             }
 
             return etoMap;
 
         } catch (Exception e) {
             e.printStackTrace();
-            // En cas d'erreur, retourner des valeurs par défaut simulées
-            return getFallbackEtoValues();
+            throw new RuntimeException("Erreur API OpenET : " + e.getMessage(), e);
         }
-    }
-
-    // Fallback en cas d'erreur d'appel API
-    private Map<LocalDate, Double> getFallbackEtoValues() {
-        Map<LocalDate, Double> etoMap = new LinkedHashMap<>();
-        LocalDate today = LocalDate.now();
-
-        for (int i = 0; i < 7; i++) {
-            etoMap.put(today.plusDays(i), 4.0 + Math.random()); // 4.0 à 5.0 mm/jour simulé
-        }
-
-        return etoMap;
     }
 
     @Data

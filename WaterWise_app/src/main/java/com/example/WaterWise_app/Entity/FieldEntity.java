@@ -12,9 +12,15 @@ public class FieldEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String name;
+
     @OneToOne(mappedBy = "field", cascade = CascadeType.ALL)
     private CropEntity crop;
 
     @OneToMany(mappedBy = "field", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CoordinateEntity> coordinates;
+
+    @ManyToOne(fetch = FetchType.LAZY)  // Un champ appartient à un utilisateur
+    @JoinColumn(name = "user_id")       // colonne dans la table FieldEntity
+    private User user;
 }

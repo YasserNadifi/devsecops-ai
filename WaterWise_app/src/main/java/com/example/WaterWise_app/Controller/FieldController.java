@@ -44,4 +44,11 @@ public class FieldController {
         fieldService.deleteField(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<FieldDto>> getFieldsByUserId(@PathVariable Long userId) {
+        List<FieldDto> fields = fieldService.getFieldsByUserId(userId);
+        return ResponseEntity.ok(fields);
+    }
+
 }

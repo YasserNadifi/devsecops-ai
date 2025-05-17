@@ -10,4 +10,6 @@ public interface FieldService {
     List<FieldDto> getAllFields();
     FieldDto updateField(Long id, FieldDto fieldDto);
     void deleteField(Long id);
+    // Nouvelle méthode pour récupérer tous les champs d'un utilisateur
+    List<FieldDto> getFieldsByUserId(Long userId);
 }

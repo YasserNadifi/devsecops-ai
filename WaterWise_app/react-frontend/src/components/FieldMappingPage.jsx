@@ -77,6 +77,8 @@ export const FieldMappingPage = () => {
               marker: false,
               polyline: false,
               polygon: !hasPolygon
+                ? { allowIntersection: false, showArea: true }
+                : false
             }}
           />
         </FeatureGroup>

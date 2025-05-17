@@ -34,7 +34,7 @@ public class OpenETService {
         double avgLat = coords.stream().mapToDouble(CoordinateEntity::getLatitude).average().orElse(0);
         double avgLon = coords.stream().mapToDouble(CoordinateEntity::getLongitude).average().orElse(0);
 
-        double surfaceM2 = calculateFieldSurfaceM2(coords);
+        //double surfaceM2 = calculateFieldSurfaceM2(coords);
         double kc = getKcCoefficient(crop.getCropType(), crop.getGrowthStage());
 
 
@@ -47,6 +47,7 @@ public class OpenETService {
         LocalDate today = LocalDate.now();
         double etoToday = etoValues.getOrDefault(today, 0.0);
 
+
         List<DailyIrrigation> results = new ArrayList<>();
 
         for (int i = 0; i <= 5; i++) {
@@ -56,10 +57,11 @@ public class OpenETService {
             double adjustedET = etoToday - precipitation;
             if (adjustedET < 0) adjustedET = 0;
 
-            double waterNeedLitres = adjustedET * kc * surfaceM2;
+            double waterNeedLitres = adjustedET * kc * 10;
             results.add(new DailyIrrigation(date, waterNeedLitres));
 
         }
+
 
         return results;
     }

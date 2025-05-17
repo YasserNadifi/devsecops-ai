@@ -18,7 +18,7 @@ import java.util.*;
 @Service
 public class OpenETService {
 
-    private static final String API_KEY = "YOUR_API_KEY"; // remplace par ta clé API si nécessaire
+    private static final String API_KEY = "zr96efKx5Lng5j7QlLyWUoDxWf0E76E6kuKiOUq0HRpJtCXvkIWkYCAlhLDG"; // remplace par ta clé API si nécessaire
     private static final String OPENET_BASE_URL = "https://api.openetdata.org/eto";
 
     private final RestTemplate restTemplate = new RestTemplate();

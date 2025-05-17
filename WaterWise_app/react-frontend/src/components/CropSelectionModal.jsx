@@ -10,6 +10,7 @@ const CropSelectionModal = ({ isOpen, onClose, onSubmit }) => {
   const [selectedStage, setSelectedStage] = useState('');
   const [irrigationType, setIrrigationType] = useState('');
   const [waterFlow, setWaterFlow] = useState('');
+  const [fieldName,setFieldName] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = () => {
@@ -19,6 +20,7 @@ const CropSelectionModal = ({ isOpen, onClose, onSubmit }) => {
     }
 
     onSubmit({
+      fieldName: fieldName,
       cropType: selectedCrop,
       growthStage: selectedStage,
       irrigationType,
@@ -45,6 +47,19 @@ const CropSelectionModal = ({ isOpen, onClose, onSubmit }) => {
         )}
 
         <div className="space-y-6">
+          <div>
+            <label htmlFor="fieldName" className="block text-gray-900 text-xs font-medium mb-2">
+              Field Name
+            </label>
+            <input
+              id="fieldName"
+              type="text"
+              value={fieldName}
+              onChange={(e) => setFieldName(e.target.value)}
+              className="peer block w-full rounded-md border border-gray-200 py-[9px] px-3 text-sm outline-2 placeholder:text-gray-500"
+            />
+          </div>
+
           <div>
             <label htmlFor="crop" className="block text-gray-900 text-xs font-medium mb-2">
               Crop Type

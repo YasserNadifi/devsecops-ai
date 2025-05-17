@@ -1,13 +1,35 @@
-import { Card, CardBody, CardHeader } from '@nextui-org/card';
 import { WiRaindrop, WiRaindrops } from 'react-icons/wi';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { user } from '@nextui-org/react';
+import axios from "axios";
 
 
 export default function FieldInfoPage() {
   const [selectedField, setSelectedField] = useState(null);
+  const [error, setError] = useState(null);
+  const [data,setData]=useState();
   const navigate = useNavigate();
+  
+useEffect(() => {
+  const fetchFields = async () => {
+    try {
+      const userId = localStorage.getItem('current_user');
+      if (!userId) {
+        alert("User ID not found");
+        return;
+      }
 
+      const response = await axios.get(`http://localhost:8080/api/fields/user/${userId}`);
+      setData(response.data);
+      console.log("Fetched data:", data); // Correct place to log
+    } catch (err) {
+      alert("Error: " + err.message);
+    }
+  };
+
+  fetchFields();
+}, []);
 
   const renderIcon = (value) => {
     if (value >= 100) {
@@ -37,22 +59,26 @@ export default function FieldInfoPage() {
     <div className="flex min-h-screen bg-green-50">
       {/* Sidebar */}
 <aside className="w-64 bg-white shadow-md p-6 flex flex-col justify-between">
-  <div>
-    <h2 className="text-xl font-bold text-green-800 mb-4">Your Fields</h2>
-    {['Field 1', 'Field 2', 'Field 3'].map((field) => (
+<div>
+  <h2 className="text-xl font-bold text-green-800 mb-4">Your Fields</h2>
+  {data ? (
+    data.map((field) => (
       <button
-        key={field}
-        onClick={() => setSelectedField(field)}
+        key={field.id}
+        onClick={() => setSelectedField(field.id)}
         className={`w-full text-left px-4 py-2 mb-2 rounded-md font-medium ${
-          selectedField === field
+          selectedField === field.id
             ? 'bg-green-100 text-green-800'
             : 'hover:bg-green-50 text-gray-800'
         }`}
       >
-        {field}
+        {field.name}
       </button>
-    ))}
-  </div>
+    ))
+  ) : (
+    <p>Loading fields...</p>
+  )}
+</div>
 
   <button
     onClick={handleAddField} // Define this function to handle the action

@@ -4,6 +4,7 @@ import WaterWisePage from './components/WaterWisePage';
 import { LoginPage } from './components/LoginPage';
 import { RegisterPage } from './components/RegisterPage';
 import { FieldMappingPage } from './components/FieldMappingPage';
+import FieldInfoPage from './components/FieldInfoPage';
 
 const App = () => {
   return (
@@ -13,6 +14,7 @@ const App = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/newfield" element={<FieldMappingPage />} />
+        <Route path="/dashboard" element={<FieldInfoPage />} />
       </Routes>
     </Router>
   );

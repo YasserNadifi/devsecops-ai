@@ -5,6 +5,7 @@ import CursorCoordinates from "./CursorCoordinates";
 import CropSelectionModal from './CropSelectionModal';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
+import axios from "axios";
 
 export const FieldMappingPage = () => {
   const [coordinates, setCoordinates] = useState([]);
@@ -14,14 +15,22 @@ export const FieldMappingPage = () => {
 
   const onCreated = (e) => {
     const layer = e.layer;
-    const latlngs = layer.getLatLngs()[0].map(({ lat, lng }) => [lat, lng]);
+    const latlngs = layer.getLatLngs()[0].map(({ lat, lng }) => ({
+      latitude: lat,
+      longitude: lng,
+    }));
     setCoordinates(latlngs);
+    console.log(coordinates)
+    console.log(e.layer)
     setHasPolygon(true);
   };
 
   const onEdited = (e) => {
     e.layers.eachLayer((layer) => {
-      const latlngs = layer.getLatLngs()[0].map(({ lat, lng }) => [lat, lng]);
+      const latlngs = layer.getLatLngs()[0].map(({ lat, lng }) => ({
+        latitude: lat,
+        longitude: lng,
+      }));
       setCoordinates(latlngs);
     });
   };
@@ -32,6 +41,7 @@ export const FieldMappingPage = () => {
   };
 
   const handleSave = () => {
+    console.log(coordinates)
     if (!coordinates.length) {
       alert("You have to draw field first!");
       return;
@@ -41,20 +51,36 @@ export const FieldMappingPage = () => {
 
   const handleModalSubmit = async (info) => {
     try {
-      const body = {
-        boundaries: coordinates,
-        cropInfo : info
-      };
-      console.log(body)
+      const userId = localStorage.getItem('current_user')
+      const field_response = await axios.post(`http://localhost:8080/api/fields`, 
+        { 
+          name : info.fieldName,
+          coordinates : coordinates,
+          userId : userId
+        });
 
-      const res = await fetch('https://api.example.com/fields', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
+      const fieldId=field_response.data.id;
 
-      if (!res.ok) throw new Error('Failed to save field');
-      alert("Field saved successfully!");
+console.log({ 
+          cropType : info.cropType,
+          growthStage : info.growthStage,
+          irrigationType : info.irrigationType,
+          waterFlowRate: parseFloat(info.waterFlow),
+          fieldId: fieldId
+        })
+
+      const crop_response = await axios.post(`http://localhost:8080/api/crops`, 
+        { 
+          cropType : info.cropType,
+          growthStage : info.growthStage,
+          irrigationType : info.irrigationType,
+          waterFlowRate: info.waterFlow,
+          fieldId: fieldId
+        }); 
+
+
+      if (crop_response.status != 200) throw new Error('Failed to save field');
+      console.log("Field saved successfully!");
       setShowModal(false);
     } catch (err) {
       console.error(err);

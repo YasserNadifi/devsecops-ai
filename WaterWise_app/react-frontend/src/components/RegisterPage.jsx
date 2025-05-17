@@ -15,6 +15,8 @@ export const RegisterPage = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [isPending, setIsPending] = useState(false);
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   async function handleSubmit(e) {
     e.preventDefault();
     if (password !== confirm) {
@@ -25,14 +27,16 @@ export const RegisterPage = () => {
     setIsPending(true);
 
     try {
-      const response = await axios.post("/api/register", { email, password });
-      if (response.status === 201) {
-        // Redirect to login or dashboard on success
-        window.location.href = "/login";
+      const response = await axios.post(`http://localhost:8080/api/users/register`, { username : email,password : password });
+      console.log(response.data)
+      if (response.status === 200) {
+        localStorage.setItem('current_user',response.data.id)
+        window.location.href = "/dashboard";
       } else {
         setErrorMessage("Registration failed. Please try again.");
       }
     } catch (error) {
+      // add exception handler for different errors later
       setErrorMessage(
         error.response?.data?.message || "Something went wrong"
       );

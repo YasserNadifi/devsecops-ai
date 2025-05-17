@@ -23,8 +23,8 @@ const CropSelectionModal = ({ isOpen, onClose, onSubmit }) => {
       fieldName: fieldName,
       cropType: selectedCrop,
       growthStage: selectedStage,
-      irrigationType,
-      waterFlow,
+      irrigationType: irrigationType,
+      waterFlow: waterFlow,
     });
 
     onClose();

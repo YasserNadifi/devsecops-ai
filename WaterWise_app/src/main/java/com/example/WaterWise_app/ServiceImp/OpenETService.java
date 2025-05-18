@@ -3,9 +3,12 @@ package com.example.WaterWise_app.ServiceImp;
 import com.example.WaterWise_app.Entity.CoordinateEntity;
 import com.example.WaterWise_app.Entity.CropEntity;
 import com.example.WaterWise_app.Entity.FieldEntity;
+import com.example.WaterWise_app.Repository.CoordinateRepository;
+import com.example.WaterWise_app.Repository.CropRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -17,7 +20,8 @@ import java.util.*;
 
 @Service
 public class OpenETService {
-
+    @Autowired
+    private CropRepository cropRepository;
     private static final String OPENET_API_KEY = "zr96efKx5Lng5j7QlLyWUoDxWf0E76E6kuKiOUq0HRpJtCXvkIWkYCAlhLDG";
     private static final String OPENET_URL = "https://openet-api.org/raster/timeseries/point";
 
@@ -27,7 +31,8 @@ public class OpenETService {
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public List<DailyIrrigation> calculateWeeklyWaterNeeds(CropEntity crop) {
+    public List<DailyIrrigation> calculateWeeklyWaterNeeds(Long cropId) {
+        CropEntity crop = cropRepository.findById(cropId).get();
         FieldEntity field = crop.getField();
         List<CoordinateEntity> coords = field.getCoordinates();
 
@@ -132,7 +137,7 @@ public class OpenETService {
     private double getTodayEtoFromApi(double lat, double lon) {
         try {
             LocalDate today = LocalDate.now();
-            LocalDate targetDate = today.minusDays(5);  // 3 jours avant aujourd'hui
+            LocalDate targetDate = today.minusDays(6);  // 3 jours avant aujourd'hui
             String dateStr = targetDate.format(java.time.format.DateTimeFormatter.BASIC_ISO_DATE);
             String startDate = dateStr;
             String endDate = dateStr;

@@ -24,12 +24,12 @@ public class IrrigationController {
      * Exemple d’endpoint POST qui reçoit un CropEntity JSON,
      * calcule les besoins d’eau sur une semaine, et retourne la liste des résultats.
      *
-     * @param crop le crop envoyé en JSON
+     * @param cropId le Id du crop
      * @return liste des besoins quotidiens en irrigation
      */
-    @PostMapping("/weekly-needs")
-    public ResponseEntity<List<OpenETService.DailyIrrigation>> getWeeklyIrrigationNeeds(@RequestBody CropEntity crop) {
-        List<OpenETService.DailyIrrigation> irrigationNeeds = openETService.calculateWeeklyWaterNeeds(crop);
+    @GetMapping("/weekly-needs/{cropId}")
+    public ResponseEntity<List<OpenETService.DailyIrrigation>> getWeeklyIrrigationNeeds(@PathVariable Long cropId) {
+        List<OpenETService.DailyIrrigation> irrigationNeeds = openETService.calculateWeeklyWaterNeeds(cropId);
         return ResponseEntity.ok(irrigationNeeds);
     }
 }

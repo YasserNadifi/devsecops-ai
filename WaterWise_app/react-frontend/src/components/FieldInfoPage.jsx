@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { user } from '@nextui-org/react';
 import axios from "axios";
 import { FaTint } from 'react-icons/fa';
+import animationData from '../assets/water.json';
+import Lottie from 'react-lottie';
 
 
 export default function FieldInfoPage() {
@@ -32,6 +34,15 @@ useEffect(() => {
 
   fetchFields();
 }, []);
+
+  const lottieOptions = {
+    loop: true,
+    autoplay: true,
+    animationData: animationData,
+    rendererSettings: {
+      preserveAspectRatio: 'xMidYMid slice',
+    },
+  };
 
   const renderIcon = (value) => {
     if (value >= 100) {
@@ -98,10 +109,10 @@ useEffect(() => {
         {!selectedField ? (
           <div className="text-center text-gray-700 text-lg">Please select a field from the sidebar.</div>
         ) :  !wateringReq ? (
-          <div className="flex flex-col justify-center items-center">
-            
-            <h1 className="text-black">We are getting your watering schedule... hang tight!</h1>
-          </div>
+                  <div className="flex flex-col justify-center items-center" >
+                    <Lottie options={lottieOptions} height={300} width={300} />
+                    <h4 className="text-black">We are getting your watering schedule... hang tight! </h4>
+                  </div>
         ) : (
         <>
           {/* Header / Intro */}
@@ -133,10 +144,6 @@ useEffect(() => {
                   {waterInLitres.toFixed(2)}  L
                 </div>
 
-                {/* End time */}
-                <div className="text-gray-800">
-                  <span className="font-medium">End time:</span> 22:00
-                </div>
               </div>
             ))}
           </div>

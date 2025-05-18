@@ -1,12 +1,12 @@
-# Water Optix
+# WaterWise
 
-Water Optix is a smart solution designed to help farmers optimize irrigation and enhance crop health. By leveraging NASA’s OpenET evapotranspiration data along with rainfall and crop type inputs, Water Optix provides farmers with a precise 7-day water schedule tailored to their fields’ unique needs.
+WaterWise is a smart solution designed to help farmers optimize irrigation and enhance crop health. By leveraging NASA’s OpenET evapotranspiration data along with rainfall and crop type inputs, WaterWise provides farmers with a precise 6-day water schedule tailored to their fields’ unique needs.
 
-## Why Water Optix?
+## Why WaterWise?
 
 Evapotranspiration—the process by which water evaporates from soil and plants—is essential for understanding how much water crops require. Without tracking it alongside rainfall and crop data, farmers risk wasting water or under-watering their crops, which can reduce yield and harm sustainability.
 
-Studies show that up to 60% of irrigation water is wasted due to inefficient practices (WWF). Water Optix addresses this by delivering data-driven irrigation plans that reduce water waste and improve efficiency.
+Studies show that up to 60% of irrigation water is wasted due to inefficient practices (WWF). WaterWise addresses this by delivering data-driven irrigation plans that reduce water waste and improve efficiency.
 
 ## Features
 

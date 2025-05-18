@@ -39,7 +39,7 @@ export default function FieldDetails({ field ,crop, surface}) {
   );
 
   return (
-    <div className="flex h-full gap-6">
+    <div className="flex gap-6">
       {/* Left meta data panel */}
       
 <div className="w-[350px] bg-white p-6 rounded-2xl shadow-md flex flex-col space-y-6">

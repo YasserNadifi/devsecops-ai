@@ -8,6 +8,7 @@ import animationData from '../assets/water.json';
 import Lottie from 'react-lottie';
 import { WeatherOverview } from './WeatherOverview';
 import FieldDetails from './FieldDetails';
+import { FaTrash } from "react-icons/fa";
 
 export default function FieldInfoPage() {
   const [selectedField, setSelectedField] = useState(null);
@@ -56,7 +57,6 @@ useEffect(() => {
   }
 }, [surface]);
 
-  useEffect(() => {
     const fetchFields = async () => {
       try {
         const userId = localStorage.getItem('current_user');
@@ -70,6 +70,8 @@ useEffect(() => {
         alert("Error: " + err.message);
       }
     };
+
+  useEffect(() => {
     fetchFields();
   }, []);
 
@@ -95,6 +97,19 @@ useEffect(() => {
       alert("Error: " + err.message);
     }
   };
+
+  const handleDeleteField=async (fieldId)=>{
+    const confirmDelete = window.confirm("Are you sure you want to delete this field?");
+  if (!confirmDelete) return;
+
+    await axios.delete(`http://localhost:8080/api/fields/${fieldId}`);
+
+  fetchFields();
+  if (selectedField?.id === fieldId) {
+    setSelectedField(null);
+  }
+
+  }
 
   const handleLogout = () => {
     localStorage.removeItem('current_user');
@@ -133,20 +148,31 @@ useEffect(() => {
           {/* Scrollable list container */}
           <div className="flex-1 overflow-y-auto pr-1">
             {data ? (
-              data.map((field) => (
-                <button
-                  key={field.id}
-                  onClick={() => handleSelectField(field)}
-                  className={`w-full text-left px-4 py-2 mb-2 rounded-md font-medium transition ${
-                    selectedField === field
-                      ? 'bg-green-100 text-green-800'
-                      : 'hover:bg-green-50 text-gray-800'
-                  }`}
-                >
-                  {field.name}
-                </button>
-              ))
-            ) : (
+      data.map((field) => (
+        <div key={field.id} className="relative">
+          <button
+            onClick={() => {field != selectedField && handleSelectField(field)}}
+            className={`w-full flex items-center justify-between px-4 py-2 mb-2 rounded-md font-medium transition ${
+              selectedField?.id === field?.id
+                ? 'bg-green-100 text-green-800'
+                : 'hover:bg-green-50 text-gray-800'
+            }`}
+          >
+            <span className="truncate">{field.name}</span>
+            <button
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent field selection
+                handleDeleteField(field.id);
+              }}
+              className="text-red-500 hover:text-red-700 ml-3 w-[10]"
+              title="Delete field"
+            >
+              <FaTrash className="text-sm" />
+            </button>
+          </button>
+        </div>
+      ))
+    ) : (
               <p className="text-sm text-gray-600">Loading fields...</p>
             )}
           </div>

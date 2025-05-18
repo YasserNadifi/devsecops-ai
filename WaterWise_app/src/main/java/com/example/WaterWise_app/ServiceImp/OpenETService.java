@@ -3,10 +3,9 @@ package com.example.WaterWise_app.ServiceImp;
 import com.example.WaterWise_app.Entity.CoordinateEntity;
 import com.example.WaterWise_app.Entity.CropEntity;
 import com.example.WaterWise_app.Entity.FieldEntity;
-<<<<<<< HEAD
-=======
+
 import com.example.WaterWise_app.Repository.CoordinateRepository;
->>>>>>> 25d564710794708f839afc997f2b166bced62e85
+
 import com.example.WaterWise_app.Repository.CropRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -140,11 +139,9 @@ public class OpenETService {
     private double getTodayEtoFromApi(double lat, double lon) {
         try {
             LocalDate today = LocalDate.now();
-<<<<<<< HEAD
-            LocalDate targetDate = today.minusDays(7);  // 3 jours avant aujourd'hui
-=======
+
             LocalDate targetDate = today.minusDays(6);  // 3 jours avant aujourd'hui
->>>>>>> 25d564710794708f839afc997f2b166bced62e85
+
             String dateStr = targetDate.format(java.time.format.DateTimeFormatter.BASIC_ISO_DATE);
             String startDate = dateStr;
             String endDate = dateStr;

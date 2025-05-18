@@ -13,16 +13,20 @@ export const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isPending, setIsPending] = useState(false);
-  const callbackUrl = "/dashboard";
 
   async function handleSubmit(e) {
     e.preventDefault();
     setErrorMessage("");
     setIsPending(true);
     try {
-      const response = await axios.post("/api/login", { email, password });
+      const response = await axios.post("http://localhost:8080/api/users/login", 
+        { 
+          username :email, 
+          password :password 
+        });
       if (response.status === 200) {
-        window.location.href = callbackUrl;
+        localStorage.setItem('current_user',response.data.id)
+        window.location.href = "/dashboard";
       } else {
         setErrorMessage("Login failed. Please try again.");
       }
@@ -89,7 +93,6 @@ export const LoginPage = () => {
             <KeyIcon className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
           </div>
 
-          <input type="hidden" name="redirectTo" value={callbackUrl} />
 
           <button
             type="submit"

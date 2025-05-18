@@ -62,7 +62,7 @@ useEffect(() => {
       setSelectedField(field);
       console.log(field);
 
-      const wateringReqResponse = await axios.get(`http://localhost:8080/api/irrigation/weekly-needs/${field.id}`);
+      const wateringReqResponse = await axios.get(`http://localhost:8080/api/irrigation/weekly-needs/${field.cropId}`);
       setWateringReq(wateringReqResponse.data);
     } catch (err) {
       alert("Error: " + err.message);

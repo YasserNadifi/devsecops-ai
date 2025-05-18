@@ -8,4 +8,6 @@ import java.util.Optional;
 public interface UserService {
     UserDTO registerUser(UserDTO userDTO);
     UserDTO getUserByUsername(String username);
+    UserDTO login(String username, String password);
+
 }

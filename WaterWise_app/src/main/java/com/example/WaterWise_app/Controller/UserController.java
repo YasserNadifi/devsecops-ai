@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -31,6 +30,12 @@ public class UserController {
     @GetMapping("/{username}")
     public ResponseEntity<UserDTO> getUserByUsername(@PathVariable String username) {
         UserDTO user = userService.getUserByUsername(username);
+        return ResponseEntity.ok(user);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<UserDTO> login(@RequestBody UserDTO loginRequest) {
+        UserDTO user = userService.login(loginRequest.getUsername(), loginRequest.getPassword());
         return ResponseEntity.ok(user);
     }
 }

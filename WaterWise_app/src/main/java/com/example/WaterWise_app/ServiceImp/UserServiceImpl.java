@@ -40,4 +40,21 @@ public class UserServiceImpl implements UserService {
         }
         return UserMapper.toDTO(userOpt.get());
     }
+
+    @Override
+    public UserDTO login(String username, String password) {
+        Optional<User> userOpt = userRepository.findByUsername(username);
+        if (userOpt.isEmpty()) {
+            throw new RuntimeException("Nom d'utilisateur incorrect.");
+        }
+
+        User user = userOpt.get();
+
+        if (!user.getPassword().equals(password)) {
+            throw new RuntimeException("Mot de passe incorrect.");
+        }
+
+        return UserMapper.toDTO(user);
+    }
+
 }

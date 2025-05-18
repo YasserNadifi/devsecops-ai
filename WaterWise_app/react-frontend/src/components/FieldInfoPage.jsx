@@ -15,7 +15,8 @@ export default function FieldInfoPage() {
   const [data, setData] = useState();
   const navigate = useNavigate();
   const [weather, setWeather] = useState(null);
-const [crop,setCrop]=useState(null);
+  const [crop,setCrop]=useState(null);
+  const [surface,setSurface]=useState(null);
 
   useEffect(() => {
     if(selectedField){
@@ -33,15 +34,27 @@ const [crop,setCrop]=useState(null);
         .get(`http://localhost:8080/api/crops/${selectedField.cropId}`)
         .then(res => setCrop(res.data))
         .catch(console.error);
-        if (crop){console.log(crop)}
+        axios
+        .get(`http://localhost:8080/api/fields/surface/${selectedField.cropId}`)
+        .then(res => setSurface(res.data))
+        .catch(console.error);
+      
     }
   }, [selectedField]);
 
-  useEffect(() => {
+useEffect(() => {
+  console.log("crop")
   if (crop) {
+    console.log("crop");
     console.log(crop);
   }
 }, [crop]);
+
+  useEffect(() => {
+  if (surface) {
+    console.log("surface : "+surface);
+  }
+}, [surface]);
 
   useEffect(() => {
     const fetchFields = async () => {
@@ -155,8 +168,9 @@ const [crop,setCrop]=useState(null);
             </div>
           ) : (
             <>
+            <FieldDetails field={selectedField} crop ={crop} surface={surface}/>
               <div className="mb-6">
-                <h2 className="text-2xl font-bold text-green-800 font-serif mb-2">
+                <h2 className="text-2xl font-bold text-green-800 font-serif mb-2 mt-6">
                   Wheater Info
                 </h2>
               </div>
@@ -181,14 +195,18 @@ const [crop,setCrop]=useState(null);
                     <div className="text-sm text-gray-500 mb-3">{date}</div>
                     <FaTint className="text-5xl text-cyan-400 mb-4" />
                     <div className="text-gray-800 text-sm text-center">
-                      <span className="font-medium">Water:</span>{' '}
+                      <span className="font-medium">Total:</span>{' '}
                       {waterInLitres.toFixed(2)} L
+                    </div>
+                    <div className="text-gray-800 text-sm text-center mt-1">
+                      <span className="font-medium">per m²:</span>{' '}
+                      {(waterInLitres/surface).toFixed(2)} L/m²
                     </div>
                   </div>
                 ))}
               </div>
 
-              <FieldDetails field={selectedField} crop ={crop}/>
+              
             </>
           )}
         </main>

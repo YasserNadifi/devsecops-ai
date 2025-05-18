@@ -141,6 +141,11 @@ export default function FieldInfoPage() {
             </div>
           ) : (
             <>
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-green-800 font-serif mb-2">
+                  Wheater Info
+                </h2>
+              </div>
               <WeatherOverview data={weather} />
               <div className="mb-6">
                 <h2 className="text-2xl font-bold text-green-800 font-serif mb-2">

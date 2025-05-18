@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/WaterWise_app/WaterWise_app.iml" filepath="$PROJECT_DIR$/WaterWise_app/WaterWise_app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/WaterWise_app.iml" filepath="$PROJECT_DIR$/.idea/WaterWise_app.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/development-platform-mars.iml" filepath="$PROJECT_DIR$/.idea/development-platform-mars.iml" />
     </modules>
   </component>

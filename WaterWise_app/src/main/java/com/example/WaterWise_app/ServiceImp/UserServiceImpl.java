@@ -6,6 +6,7 @@ import com.example.WaterWise_app.Mapper.UserMapper;
 import com.example.WaterWise_app.Repository.UserRepository;
 import com.example.WaterWise_app.ServiceInterface.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -14,10 +15,12 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -27,7 +30,8 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = UserMapper.toEntity(userDTO);
-        user.setPassword(user.getPassword()); // Pas de hash ici
+        // Hash du mot de passe
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         User saved = userRepository.save(user);
         return UserMapper.toDTO(saved);
     }
@@ -50,11 +54,11 @@ public class UserServiceImpl implements UserService {
 
         User user = userOpt.get();
 
-        if (!user.getPassword().equals(password)) {
+        // Vérification avec mot de passe hashé
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new RuntimeException("Mot de passe incorrect.");
         }
 
         return UserMapper.toDTO(user);
     }
-
 }

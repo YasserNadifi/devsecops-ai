@@ -6,12 +6,29 @@ import axios from "axios";
 import { FaTint } from 'react-icons/fa';
 import animationData from '../assets/water.json';
 import Lottie from 'react-lottie';
+import { WeatherOverview } from './WeatherOverview';
 
 export default function FieldInfoPage() {
   const [selectedField, setSelectedField] = useState(null);
   const [wateringReq, setWateringReq] = useState(null);
   const [data, setData] = useState();
   const navigate = useNavigate();
+  const [weather, setWeather] = useState(null);
+
+  useEffect(() => {
+    if(selectedField){
+      const API_KEY="dc87fcbe174d8fdf21975befd687cc2b"
+      console.log(selectedField.coordinates[0])
+      const lat = selectedField.coordinates[0].latitude
+      const lon = selectedField.coordinates[0].longitude
+      console.log(lon)
+      console.log(lat)
+      axios
+        .get(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`)
+        .then(res => setWeather(res.data))
+        .catch(console.error);
+    }
+  }, [selectedField]);
 
   useEffect(() => {
     const fetchFields = async () => {
@@ -110,6 +127,7 @@ export default function FieldInfoPage() {
 
         {/* Main Content */}
         <main className="flex-1 p-8 pt-10">
+          
           {!selectedField ? (
             <div className="text-center text-gray-700 text-lg font-medium">
               Please select a field from the sidebar.
@@ -123,6 +141,7 @@ export default function FieldInfoPage() {
             </div>
           ) : (
             <>
+              <WeatherOverview data={weather} />
               <div className="mb-6">
                 <h2 className="text-2xl font-bold text-green-800 font-serif mb-2">
                   Farm Water Requirements

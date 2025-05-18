@@ -3,10 +3,12 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { user } from '@nextui-org/react';
 import axios from "axios";
+import { FaTint } from 'react-icons/fa';
 
 
 export default function FieldInfoPage() {
   const [selectedField, setSelectedField] = useState(null);
+  const [wateringReq, setWateringReq] = useState(null);
   const [error, setError] = useState(null);
   const [data,setData]=useState();
   const navigate = useNavigate();
@@ -43,17 +45,19 @@ useEffect(() => {
     navigate('/newfield'); 
   };
 
-  const today = new Date();
-  const week = Array.from({ length: 7 }, (_, i) => {
-    const date = new Date(today);
-    date.setDate(today.getDate() + i);
-    return date.toLocaleDateString('en-US', {
-      month: '2-digit',
-      day: '2-digit',
-      year: 'numeric',
-    });
-  });
+  const handleSelectField = async (field) =>{
+    setWateringReq(null);
+    try {
+      setSelectedField(field);
+      console.log(field);
 
+      const wateringReqResponse = await axios.get(`http://localhost:8080/api/irrigation/weekly-needs/${field.id}`);
+      setWateringReq(wateringReqResponse.data);
+    } catch (err) {
+      alert("Error: " + err.message);
+    }
+
+  }
 
   return (
     <div className="flex min-h-screen bg-green-50">
@@ -65,9 +69,9 @@ useEffect(() => {
     data.map((field) => (
       <button
         key={field.id}
-        onClick={() => setSelectedField(field.id)}
+        onClick={() => handleSelectField(field)}
         className={`w-full text-left px-4 py-2 mb-2 rounded-md font-medium ${
-          selectedField === field.id
+          selectedField === field
             ? 'bg-green-100 text-green-800'
             : 'hover:bg-green-50 text-gray-800'
         }`}
@@ -93,33 +97,51 @@ useEffect(() => {
       <main className="flex-1 p-8">
         {!selectedField ? (
           <div className="text-center text-gray-700 text-lg">Please select a field from the sidebar.</div>
-        ) : 
+        ) :  !wateringReq ? (
           <div className="flex flex-col justify-center items-center">
             
             <h1 className="text-black">We are getting your watering schedule... hang tight!</h1>
           </div>
-        // ) : (
-        //   <>
-        //     <h1 className="text-black text-xl mb-4 font-semibold">
-        //       Water requirements and irrigation schedule for <span className="text-green-800">{selectedField}</span>
-        //     </h1>
-        //     <p className="text-black mb-2">
-        //       We assume you will turn on the irrigation system at 10pm. Water units are in gallons.
-        //     </p>
-        //     <div className="flex flex-wrap gap-4">
-        //       {result?.waterUsage.map((d, i) => (
-        //         <Card className="w-64" key={d + i}>
-        //           <CardHeader className="text-black ml-4">{week[i]}</CardHeader>
-        //           <CardBody className="p-4 flex flex-col items-center gap-2">
-        //             {renderIcon(d)}
-        //             <p className="text-black">Water: {litersToGallons(d)}</p>
-        //             <p className="text-black">End time: {result?.timeToEnd[i]}</p>
-        //           </CardBody>
-        //         </Card>
-        //       ))}
-        //     </div>
-        //   </>
-        // )
+        ) : (
+        <>
+          {/* Header / Intro */}
+          <div className="mb-6">
+            <h2 className="text-2xl font-semibold mb-2">
+              Farm Water Requirements
+            </h2>
+            <p className="text-gray-700">
+              We have calculated your total water needs per dayfor the next 6 days.
+            </p>
+          </div>
+
+          {/* Card container */}
+          <div className="flex space-x-4 overflow-x-auto pb-4">
+            {wateringReq.map(({ date, waterInLitres }) => (
+              <div
+                key={date}
+                className="flex-shrink-0 w-40 bg-white rounded-2xl shadow p-4 flex flex-col items-center"
+              >
+                {/* Date */}
+                <div className="text-sm text-gray-500 mb-3">{date}</div>
+
+                {/* Drop icon */}
+                <FaTint className="text-5xl text-cyan-400 mb-4" />
+
+                {/* Water amount */}
+                <div className="text-gray-800 mb-1">
+                  <span className="font-medium">Water:</span>{' '}
+                  {waterInLitres.toFixed(2)}  L
+                </div>
+
+                {/* End time */}
+                <div className="text-gray-800">
+                  <span className="font-medium">End time:</span> 22:00
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+        )
         }
       </main>
     </div>

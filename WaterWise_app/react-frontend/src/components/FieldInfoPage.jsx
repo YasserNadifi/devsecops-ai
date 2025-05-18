@@ -7,6 +7,7 @@ import { FaTint } from 'react-icons/fa';
 import animationData from '../assets/water.json';
 import Lottie from 'react-lottie';
 import { WeatherOverview } from './WeatherOverview';
+import FieldDetails from './FieldDetails';
 
 export default function FieldInfoPage() {
   const [selectedField, setSelectedField] = useState(null);
@@ -14,6 +15,7 @@ export default function FieldInfoPage() {
   const [data, setData] = useState();
   const navigate = useNavigate();
   const [weather, setWeather] = useState(null);
+const [crop,setCrop]=useState(null);
 
   useEffect(() => {
     if(selectedField){
@@ -27,8 +29,19 @@ export default function FieldInfoPage() {
         .get(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${API_KEY}`)
         .then(res => setWeather(res.data))
         .catch(console.error);
+      axios
+        .get(`http://localhost:8080/api/crops/${selectedField.cropId}`)
+        .then(res => setCrop(res.data))
+        .catch(console.error);
+        if (crop){console.log(crop)}
     }
   }, [selectedField]);
+
+  useEffect(() => {
+  if (crop) {
+    console.log(crop);
+  }
+}, [crop]);
 
   useEffect(() => {
     const fetchFields = async () => {
@@ -76,22 +89,23 @@ export default function FieldInfoPage() {
   };
 
   return (
-<div className="min-h-screen flex flex-col bg-green-50 font-sans">
-      {/* Top Bar */}
-      <header className="w-full bg-white p-4 flex items-center justify-between border-b border-gray-200">
-        <h1 className="text-3xl font-bold text-green-700 font-serif ml-8">WaterWise</h1>
-        <button
-          onClick={handleLogout}
-          className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition"
-        >
-          Logout
-        </button>
-      </header>
+<div className="flex flex-col h-screen bg-green-50 font-sans">
+  {/* Top Bar */}
+  <header className="h-[75px] bg-white p-4 flex items-center justify-between border-b border-gray-200">
+    <h1 className="text-3xl font-bold text-green-700 font-serif ml-8">WaterWise</h1>
+    <button
+      onClick={handleLogout}
+      className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition"
+    >
+      Logout
+    </button>
+  </header>
 
       {/* Main Layout: Sidebar + Content */}
-      <div className="flex flex-1">
+      <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <aside className="w-72 h-[calc(100vh-75px)] bg-white  shadow-md p-6 flex flex-col">
+        <aside className="w-72 h-[calc(100vh-75px)] bg-white shadow-md p-6 flex flex-col">
+
           {/* Fixed header section */}
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-bold text-green-800 font-serif">Your Fields</h2>
@@ -126,7 +140,7 @@ export default function FieldInfoPage() {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-8 pt-10">
+        <main className="flex-1 overflow-y-auto p-8 pt-10 h-[calc(100vh-75px)]">
           
           {!selectedField ? (
             <div className="text-center text-gray-700 text-lg font-medium">
@@ -147,6 +161,8 @@ export default function FieldInfoPage() {
                 </h2>
               </div>
               <WeatherOverview data={weather} />
+
+
               <div className="mb-6">
                 <h2 className="text-2xl font-bold text-green-800 font-serif mb-2">
                   Farm Water Requirements
@@ -155,7 +171,6 @@ export default function FieldInfoPage() {
                   Here’s your field’s water needs for the next 6 days.
                 </p>
               </div>
-
               {/* Cards */}
               <div className="flex space-x-4 overflow-x-auto pb-4">
                 {wateringReq.map(({ date, waterInLitres }) => (
@@ -172,6 +187,8 @@ export default function FieldInfoPage() {
                   </div>
                 ))}
               </div>
+
+              <FieldDetails field={selectedField} crop ={crop}/>
             </>
           )}
         </main>

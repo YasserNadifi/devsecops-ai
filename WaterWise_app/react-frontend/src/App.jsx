@@ -5,6 +5,7 @@ import { LoginPage } from './components/LoginPage';
 import { RegisterPage } from './components/RegisterPage';
 import { FieldMappingPage } from './components/FieldMappingPage';
 import FieldInfoPage from './components/FieldInfoPage';
+import { TestPage } from './components/TestPage';
 
 const App = () => {
   return (
@@ -15,6 +16,7 @@ const App = () => {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/newfield" element={<FieldMappingPage />} />
         <Route path="/dashboard" element={<FieldInfoPage />} />
+        <Route path="/test" element={<TestPage />} />
       </Routes>
     </Router>
   );

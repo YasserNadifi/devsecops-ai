@@ -71,6 +71,7 @@ public class OpenETService {
         }
         System.out.println("ET0 today = " + etoToday);
         System.out.println("surfaceM2= " + surfaceM2);
+        System.out.println("kc= " + kc);
 
         return results;
     }
@@ -116,25 +117,57 @@ public class OpenETService {
 
 
     private double getKcCoefficient(String cropType, String growthStage) {
-        if (cropType.equalsIgnoreCase("Maïs")) {
-            return switch (growthStage.toLowerCase()) {
-                case "germination" -> 0.4;
-                case "croissance" -> 0.7;
-                case "floraison" -> 1.1;
-                case "recolte" -> 0.7;
-                default -> 1.0;
-            };
-        } else if (cropType.equalsIgnoreCase("blé")) {
-            return switch (growthStage.toLowerCase()) {
-                case "germination" -> 0.3;
-                case "croissance" -> 0.5;
-                case "floraison" -> 1.0;
-                case "recolte" -> 0.6;
-                default -> 1.0;
-            };
+        // Normaliser les chaînes
+        String crop = cropType.toLowerCase().replaceAll("\\s+", "");
+        String stage = growthStage.toLowerCase();
+
+        Map<String, Map<String, Double>> cropData = new HashMap<>();
+
+        cropData.put("alfalfa", Map.of("seedling", 0.4, "adult", 1.2, "elderly", 1.15));
+        cropData.put("onions", Map.of("seedling", 0.7, "adult", 1.05, "elderly", 0.95));
+        cropData.put("apples", Map.of("seedling", 0.5, "adult", 1.2, "elderly", 0.85));
+        cropData.put("pasture", Map.of("seedling", 0.4, "adult", 1.0, "elderly", 0.85));
+        cropData.put("apricots", Map.of("seedling", 0.45, "adult", 1.15, "elderly", 0.85));
+        cropData.put("peaches", Map.of("seedling", 0.45, "adult", 1.15, "elderly", 0.85));
+        cropData.put("beansgreen", Map.of("seedling", 0.5, "adult", 1.05, "elderly", 0.9));
+        cropData.put("pears", Map.of("seedling", 0.5, "adult", 1.2, "elderly", 0.85));
+        cropData.put("beets", Map.of("seedling", 0.5, "adult", 1.05, "elderly", 0.95));
+        cropData.put("peas", Map.of("seedling", 0.5, "adult", 1.15, "elderly", 1.1));
+        cropData.put("berriesbushes", Map.of("seedling", 0.3, "adult", 1.05, "elderly", 0.5));
+        cropData.put("potato", Map.of("seedling", 0.5, "adult", 1.15, "elderly", 0.75));
+        cropData.put("broccoli", Map.of("seedling", 0.7, "adult", 1.05, "elderly", 0.95));
+        cropData.put("pumpkin", Map.of("seedling", 0.5, "adult", 1.0, "elderly", 0.8));
+        cropData.put("cabbage", Map.of("seedling", 0.7, "adult", 1.05, "elderly", 0.95));
+        cropData.put("radish", Map.of("seedling", 0.7, "adult", 0.9, "elderly", 0.85));
+        cropData.put("cabbagelocal", Map.of("seedling", 0.7, "adult", 1.05, "elderly", 0.95));
+        cropData.put("smallvegetables", Map.of("seedling", 0.7, "adult", 1.05, "elderly", 0.95));
+        cropData.put("carrots", Map.of("seedling", 0.7, "adult", 1.05, "elderly", 0.95));
+        cropData.put("spinach", Map.of("seedling", 0.7, "adult", 1.05, "elderly", 0.95));
+        cropData.put("cauliflower", Map.of("seedling", 0.7, "adult", 1.05, "elderly", 0.95));
+        cropData.put("squash", Map.of("seedling", 0.5, "adult", 0.95, "elderly", 0.75));
+        cropData.put("celery", Map.of("seedling", 0.7, "adult", 1.05, "elderly", 0.95));
+        cropData.put("stonefruits", Map.of("seedling", 0.45, "adult", 1.15, "elderly", 0.85));
+        cropData.put("cereal", Map.of("seedling", 0.3, "adult", 1.15, "elderly", 0.25));
+        cropData.put("sweetcorn", Map.of("seedling", 0.3, "adult", 1.15, "elderly", 0.4));
+        cropData.put("cherries", Map.of("seedling", 0.5, "adult", 1.2, "elderly", 0.85));
+        cropData.put("sweetpeppers", Map.of("seedling", 0.7, "adult", 1.05, "elderly", 0.85));
+        cropData.put("cucumber", Map.of("seedling", 0.6, "adult", 1.0, "elderly", 0.75));
+        cropData.put("tomato", Map.of("seedling", 0.7, "adult", 1.05, "elderly", 0.8));
+        cropData.put("grapes", Map.of("seedling", 0.3, "adult", 0.8, "elderly", 0.5));
+        cropData.put("tubers", Map.of("seedling", 0.5, "adult", 1.0, "elderly", 0.8));
+        cropData.put("greenonions", Map.of("seedling", 0.7, "adult", 1.05, "elderly", 0.95));
+        cropData.put("watermelon", Map.of("seedling", 0.5, "adult", 1.0, "elderly", 0.75));
+        cropData.put("lettuce", Map.of("seedling", 0.7, "adult", 1.05, "elderly", 0.85));
+
+        Map<String, Double> stageMap = cropData.get(crop);
+        if (stageMap != null) {
+            Double kc = stageMap.get(stage);
+            if (kc != null) return kc;
         }
+        // valeur par défaut si non trouvé
         return 1.0;
     }
+
 
     private double getTodayEtoFromApi(double lat, double lon) {
         try {

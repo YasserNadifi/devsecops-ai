@@ -14,7 +14,7 @@ const CropSelectionModal = ({ isOpen, onClose, onSubmit }) => {
   const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = () => {
-    if (!selectedCrop || !selectedStage || !irrigationType || !waterFlow) {
+    if (!fieldName || !selectedCrop || !selectedStage ) {
       setErrorMessage('Please fill all fields');
       return;
     }
@@ -102,7 +102,7 @@ const CropSelectionModal = ({ isOpen, onClose, onSubmit }) => {
             </select>
           </div>
 
-          <div>
+          {/* <div>
             <label htmlFor="irrigation" className="block text-gray-900 text-xs font-medium mb-2">
               Irrigation Type
             </label>
@@ -134,7 +134,7 @@ const CropSelectionModal = ({ isOpen, onClose, onSubmit }) => {
               onChange={(e) => setWaterFlow(e.target.value)}
               className="peer block w-full rounded-md border border-gray-200 py-[9px] px-3 text-sm outline-2 placeholder:text-gray-500"
             />
-          </div>
+          </div> */}
         </div>
 
         <div className="mt-8 flex justify-end gap-4">

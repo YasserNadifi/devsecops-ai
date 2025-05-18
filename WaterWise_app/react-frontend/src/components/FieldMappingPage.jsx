@@ -82,6 +82,7 @@ console.log({
       if (crop_response.status != 200) throw new Error('Failed to save field');
       console.log("Field saved successfully!");
       setShowModal(false);
+      window.location.href = "/dashboard";
     } catch (err) {
       console.error(err);
       alert(err.message);

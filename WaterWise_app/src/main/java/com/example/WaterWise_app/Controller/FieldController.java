@@ -1,6 +1,10 @@
 package com.example.WaterWise_app.Controller;
 
 import com.example.WaterWise_app.Dto.FieldDto;
+import com.example.WaterWise_app.Entity.CropEntity;
+import com.example.WaterWise_app.Entity.FieldEntity;
+import com.example.WaterWise_app.Repository.CropRepository;
+import com.example.WaterWise_app.ServiceImp.OpenETService;
 import com.example.WaterWise_app.ServiceInterface.FieldService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +19,12 @@ public class FieldController {
 
     @Autowired
     private FieldService fieldService;
+
+    @Autowired
+    private OpenETService openETService;
+
+    @Autowired
+    private CropRepository cropRepository;
 
     @PostMapping
     public ResponseEntity<FieldDto> createField(@RequestBody FieldDto fieldDto) {
@@ -50,6 +60,14 @@ public class FieldController {
     public ResponseEntity<List<FieldDto>> getFieldsByUserId(@PathVariable Long userId) {
         List<FieldDto> fields = fieldService.getFieldsByUserId(userId);
         return ResponseEntity.ok(fields);
+    }
+
+    @GetMapping("/surface/{cropId}")
+    public double getFieldSurface(@PathVariable Long cropId) {
+        CropEntity crop = cropRepository.findById(cropId)
+                .orElseThrow(() -> new RuntimeException("Crop not found with id: " + cropId));
+        FieldEntity field = crop.getField();
+        return openETService.getSurfaceM2(field);
     }
 
 }

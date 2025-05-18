@@ -115,6 +115,10 @@ public class OpenETService {
         return area; // en mètres carrés
     }
 
+    public double getSurfaceM2(FieldEntity field) {
+        return calculateFieldSurfaceM2(field.getCoordinates());
+    }
+
 
     private double getKcCoefficient(String cropType, String growthStage) {
         // Normaliser les chaînes

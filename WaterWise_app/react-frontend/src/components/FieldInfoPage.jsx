@@ -42,6 +42,7 @@ export default function FieldInfoPage() {
   const handleAddField = () => navigate('/newfield');
 
   const handleSelectField = async (field) => {
+    console.log(field)
     setWateringReq(null);
     try {
       setSelectedField(field);

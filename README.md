@@ -1,6 +1,6 @@
 # WaterWise
 
-WaterWise is a smart solution designed to help farmers optimize irrigation and enhance crop health. By leveraging NASA’s OpenET evapotranspiration data along with rainfall and crop type inputs, WaterWise provides farmers with a precise 6-day water schedule tailored to their fields’ unique needs.
+WaterWise is a smart solution designed to help farmers optimize irrigation and enhance crop health. By leveraging NASA’s Prediction Of Worldwide Energy Resources (POWER) data along with rainfall and crop type inputs, WaterWise provides farmers with a precise 6-day water schedule tailored to their fields’ unique needs.
 
 ## Why WaterWise?
 
@@ -11,12 +11,13 @@ Studies show that up to 60% of irrigation water is wasted due to inefficient pra
 ## Features
 
 - Interactive field mapping to define farm boundaries
-- Input forms for crop types and irrigation details
-- Customized 7-day water scheduling based on real evapotranspiration data
+- Input forms for crop details
+- Customized 6-day water scheduling based on real evapotranspiration data
 - Tools to support sustainable water use and boost crop productivity
 
 ## Technologies Used
 
 - **Backend:** Java, Spring Boot, MySQL  
 - **Frontend:** JavaScript, React.js  
+- **APIs:** OpenWeatherMap API, NASA Prediction Of Worldwide Energy Resources (POWER) API
 

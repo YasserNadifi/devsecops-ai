@@ -59,11 +59,13 @@ useEffect(() => {
 
     const fetchFields = async () => {
       try {
-        const userId = localStorage.getItem('current_user');
-        if (!userId) {
-          alert("User ID not found");
+        
+        if(localStorage.getItem("current_user") === null){
+          alert("You need to be logged in first !!");
+          window.location.href = "/login";
           return;
         }
+        const userId = localStorage.getItem('current_user');
         const response = await axios.get(`http://localhost:8080/api/fields/user/${userId}`);
         setData(response.data);
       } catch (err) {

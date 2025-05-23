@@ -12,19 +12,19 @@ pipeline {
 
     stage('Build Docker') {
       steps {
-        sh 'docker-compose build'
+        bat 'docker-compose build'
       }
     }
 
     stage('Lancer les conteneurs') {
       steps {
-        sh 'docker-compose up -d'
+        bat 'docker-compose up -d'
       }
     }
 
     stage('Vérification') {
       steps {
-        sh 'docker ps'
+        bat 'docker ps'
       }
     }
   }

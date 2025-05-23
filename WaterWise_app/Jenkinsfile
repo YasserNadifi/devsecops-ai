@@ -8,17 +8,19 @@ pipeline {
   }
 
   stages {
-    
-
     stage('Build Docker') {
       steps {
-        bat 'docker-compose build'
+        dir('WaterWise_app') {
+          bat 'docker-compose build'
+        }
       }
     }
 
     stage('Lancer les conteneurs') {
       steps {
-        bat 'docker-compose up -d'
+        dir('WaterWise_app') {
+          bat 'docker-compose up -d'
+        }
       }
     }
 

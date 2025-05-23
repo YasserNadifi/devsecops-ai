@@ -1,0 +1,35 @@
+pipeline {
+  agent any
+
+  environment {
+    SPRING_DATASOURCE_URL = "jdbc:mysql://mysql:3306/waterwise"
+    SPRING_DATASOURCE_USERNAME = "root"
+    SPRING_DATASOURCE_PASSWORD = "root"
+  }
+
+  stages {
+    stage('Cloner le projet') {
+      steps {
+        git 'https://github.com/TON_UTILISATEUR/TON_REPO.git'
+      }
+    }
+
+    stage('Build Docker') {
+      steps {
+        sh 'docker-compose build'
+      }
+    }
+
+    stage('Lancer les conteneurs') {
+      steps {
+        sh 'docker-compose up -d'
+      }
+    }
+
+    stage('Vérification') {
+      steps {
+        sh 'docker ps'
+      }
+    }
+  }
+}

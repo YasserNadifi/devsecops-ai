@@ -8,6 +8,20 @@ pipeline {
   }
 
   stages {
+    stage('Tests') {
+      steps {
+        dir('WaterWise_app') {
+          bat '''
+            docker run --rm -v "%cd%":/app -w /app ^
+              -e SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/water_wise ^
+              -e SPRING_DATASOURCE_USERNAME=root ^
+              -e SPRING_DATASOURCE_PASSWORD=Hamza@0671240308 ^
+              maven:3.9.4-eclipse-temurin-21 mvn test
+          '''
+        }
+      }
+    }
+
     stage('Build Docker') {
       steps {
         dir('WaterWise_app') {

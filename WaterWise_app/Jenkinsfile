@@ -5,6 +5,7 @@ pipeline {
     SPRING_DATASOURCE_URL = "jdbc:mysql://mysql:3306/waterwise"
     SPRING_DATASOURCE_USERNAME = "root"
     SPRING_DATASOURCE_PASSWORD = "root"
+    KUBECONFIG = "C:/ProgramData/Jenkins/.kube/config"
   }
 
   stages {

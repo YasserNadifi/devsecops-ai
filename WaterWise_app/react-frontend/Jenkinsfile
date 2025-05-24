@@ -17,7 +17,7 @@ pipeline {
                 echo 'i am testing the node version'
                 sh 'node -v'
                 echo 'running tests'
-                sh sh '''
+                sh '''
                 cd WaterWise_app/react-frontend
                 npm run test
                 '''

@@ -1,0 +1,22 @@
+pipeline {
+    tools { nodejs "node" }
+    agent { label 'jenkins-agent-1' }
+    stages {
+        stage('Build') {
+            steps {
+                echo 'This is the build stage'
+                sh 'npm install'
+            }
+        }
+        stage('Test') {
+            steps {
+                echo 'This is the test stage'
+                echo 'i am testing the node version'
+                sh 'node -v'
+                echo 'running tests'
+                sh 'npm run test'
+            }
+        }
+    }
+}
++

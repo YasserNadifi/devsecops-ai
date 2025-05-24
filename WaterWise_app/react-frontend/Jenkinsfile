@@ -4,24 +4,32 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                echo 'This is the build stage'
+                echo 'checking docker version'
                 sh '''
-                cd WaterWise_app/react-frontend
-                npm install
+                docker -v
                 '''
             }
         }
-        stage('Test') {
-            steps {
-                echo 'This is the test stage'
-                echo 'i am testing the node version'
-                sh 'node -v'
-                echo 'running tests'
-                sh '''
-                cd WaterWise_app/react-frontend
-                npm run test
-                '''
-            }
-        }
+        // stage('Build') {
+        //     steps {
+        //         echo 'This is the build stage'
+        //         sh '''
+        //         cd WaterWise_app/react-frontend
+        //         npm install
+        //         '''
+        //     }
+        // }
+        // stage('Test') {
+        //     steps {
+        //         echo 'This is the test stage'
+        //         echo 'i am testing the node version'
+        //         sh 'node -v'
+        //         echo 'running tests'
+        //         sh '''
+        //         cd WaterWise_app/react-frontend
+        //         npm run test
+        //         '''
+        //     }
+        // }
     }
 }

@@ -80,7 +80,7 @@ public class OpenETService {
 
 
 
-    private double calculateFieldSurfaceM2(List<CoordinateEntity> coordinates) {
+    public double calculateFieldSurfaceM2(List<CoordinateEntity> coordinates) {
         if (coordinates == null || coordinates.size() < 3) {
             // Pas assez de points pour former un polygone
             return 0;
@@ -120,7 +120,7 @@ public class OpenETService {
     }
 
 
-    private double getKcCoefficient(String cropType, String growthStage) {
+    public double getKcCoefficient(String cropType, String growthStage) {
         // Normaliser les chaînes
         String crop = cropType.toLowerCase().replaceAll("\\s+", "");
         String stage = growthStage.toLowerCase();

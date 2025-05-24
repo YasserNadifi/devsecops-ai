@@ -21,6 +21,15 @@ public class CropServiceImpl implements CropService {
     @Autowired
     private FieldRepository fieldRepository;
 
+    public void setCropRepository(CropRepository cropRepository) {
+    this.cropRepository = cropRepository;
+}
+
+    public void setFieldRepository(FieldRepository fieldRepository) {
+        this.fieldRepository = fieldRepository;
+    }
+
+
     @Override
     public CropDto createCrop(CropDto cropDto) {
         FieldEntity field = fieldRepository.findById(cropDto.getFieldId())

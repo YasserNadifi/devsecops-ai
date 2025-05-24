@@ -5,7 +5,10 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'This is the build stage'
-                sh 'npm install'
+                sh '''
+                cd WaterWise_app/react-frontend
+                npm install
+                '''
             }
         }
         stage('Test') {
@@ -14,7 +17,10 @@ pipeline {
                 echo 'i am testing the node version'
                 sh 'node -v'
                 echo 'running tests'
-                sh 'npm run test'
+                sh sh '''
+                cd WaterWise_app/react-frontend
+                npm run test
+                '''
             }
         }
     }

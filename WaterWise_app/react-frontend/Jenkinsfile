@@ -1,35 +1,47 @@
 pipeline {
     tools { nodejs "node" }
     agent { label 'jenkins-agent-1' }
+    environment{
+        dockerImage=''
+    }
     stages {
         stage('Build') {
             steps {
-                echo 'checking docker version'
+                echo 'This is the build stage'
                 sh '''
-                docker -v
+                cd WaterWise_app/react-frontend
+                npm install
                 '''
             }
         }
-        // stage('Build') {
-        //     steps {
-        //         echo 'This is the build stage'
-        //         sh '''
-        //         cd WaterWise_app/react-frontend
-        //         npm install
-        //         '''
-        //     }
-        // }
-        // stage('Test') {
-        //     steps {
-        //         echo 'This is the test stage'
-        //         echo 'i am testing the node version'
-        //         sh 'node -v'
-        //         echo 'running tests'
-        //         sh '''
-        //         cd WaterWise_app/react-frontend
-        //         npm run test
-        //         '''
-        //     }
-        // }
+        stage('Test') {
+            steps {
+                echo 'This is the test stage'
+                echo 'i am testing the node version'
+                sh 'node -v'
+                echo 'running tests'
+                sh '''
+                cd WaterWise_app/react-frontend
+                npm run test
+                '''
+            }
+        }
+
+        stage("Building Image"){
+            steps {
+                script {
+                    dockerImage = docker.build 'react-front-image'
+                }
+            }
+        }
+        stage("Deploy Image"){
+            steps {
+                script {
+                    docker.withRegistry("https://registry.hub.docker.com", 'dockerhub-creds'){ 
+                        dockerImage.push("${env.BUILD_NUMBER}")
+                    }
+                }
+            }
+        }
     }
 }

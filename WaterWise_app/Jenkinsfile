@@ -43,5 +43,23 @@ pipeline {
         bat 'docker ps'
       }
     }
+    stage('Déploiement Kubernetes') {
+  steps {
+    dir('WaterWise_app/k8s') {
+      // Déployer MySQL
+      bat 'kubectl apply -f mysql_deployment.yaml'
+
+      // Déployer le backend WaterWise
+      bat 'kubectl apply -f bakcend_deployment.yaml'
+
+      // Vérifier les pods déployés
+      bat 'kubectl get pods'
+
+      // Vérifier les services et ports exposés
+          bat 'kubectl get svc'
+    }
+  }
+}
+
   }
 }

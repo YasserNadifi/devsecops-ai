@@ -21,3 +21,6 @@ Studies show that up to 60% of irrigation water is wasted due to inefficient pra
 - **Frontend:** JavaScript, React.js  
 - **APIs:** OpenWeatherMap API, NASA Prediction Of Worldwide Energy Resources (POWER) API
 
+
+The video for the demo : https://drive.google.com/drive/folders/1KLKUBqkNIXVesXTeV8bKlVi8Kn1ay2GI?usp=sharing
+

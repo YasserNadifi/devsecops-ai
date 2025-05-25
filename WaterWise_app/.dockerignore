@@ -1,0 +1,30 @@
+# Ignore target build output (Maven build artifacts)
+target/
+
+# Ignore local Maven wrapper scripts (optional)
+mvnw
+mvnw.cmd
+
+# Ignore Kubernetes config (usually not needed for image build)
+k8s/
+
+# Ignore React frontend source (unless you need it in backend build)
+react-frontend/
+
+# Ignore Jenkins pipeline config
+Jenkinsfile
+
+# Ignore Docker files (optional)
+docker-compose.yml
+
+# Ignore git data
+.git
+.gitignore
+
+# Ignore IDE/editor files
+.idea/
+*.iml
+.vscode/
+
+# Ignore logs or other temp files
+*.log

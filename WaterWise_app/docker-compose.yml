@@ -14,6 +14,8 @@ services:
       SPRING_DATASOURCE_PASSWORD: root
     networks:
       - waterwise-net
+    volumes:
+      - C:\Users\PC\.m2:/root/.m2
 
   mysql:
     image: mysql:8.0

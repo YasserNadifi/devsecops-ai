@@ -1,6 +1,6 @@
 pipeline {
     tools { nodejs "node" }
-    agent { label 'jenkins-agent-1' }
+    agent any
     environment{
         dockerImage=''
     }

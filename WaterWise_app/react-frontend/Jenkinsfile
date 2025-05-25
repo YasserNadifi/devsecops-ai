@@ -29,19 +29,24 @@ pipeline {
             }
         }
 
-        stage("Building Image"){
+        stage("Building Image") {
             steps {
-                script {
-                    dockerImage = docker.build 'yasser2003/plat-dev-images'
-                }
+                sh '''
+                    cd WaterWise_app/react-frontend
+                    docker build -t yasser2003/plat-dev-images:${BUILD_NUMBER} .
+                '''
             }
         }
-        stage("Deploy Image"){
+
+        stage("Deploy Image") {
             steps {
-                script {
-                    docker.withRegistry("https://registry.hub.docker.com", 'dockerhub-creds'){ 
-                        dockerImage.push("${env.BUILD_NUMBER}")
-                    }
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                        cd WaterWise_app/react-frontend
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push yasser2003/plat-dev-images:${BUILD_NUMBER}
+                        docker logout
+                    '''
                 }
             }
         }

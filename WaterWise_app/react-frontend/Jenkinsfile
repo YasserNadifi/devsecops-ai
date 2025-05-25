@@ -24,13 +24,15 @@ pipeline {
                 cd WaterWise_app/react-frontend
                 npm run test
                 '''
+                echo 'i am testing the docker version'
+                sh 'docker -v'
             }
         }
 
         stage("Building Image"){
             steps {
                 script {
-                    dockerImage = docker.build 'react-front-image'
+                    dockerImage = docker.build 'yasser2003/plat-dev-images'
                 }
             }
         }

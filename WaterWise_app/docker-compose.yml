@@ -2,10 +2,12 @@ version: '3.8'
 
 services:
   backend:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: waterwise-backend
     ports:
-      - "8081:8080"
+      - "8081:8080"            # host:container
     depends_on:
       - mysql
     environment:
@@ -21,13 +23,25 @@ services:
     image: mysql:8.0
     container_name: mysql
     restart: always
-    #ports:
-      #- "3306:3306"
     environment:
       MYSQL_DATABASE: waterwise
       MYSQL_ROOT_PASSWORD: root
     volumes:
       - mysql_data:/var/lib/mysql
+    networks:
+      - waterwise-net
+
+  frontend:
+    build:
+      context: ./react-frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://waterwise-backend:8081
+    container_name: waterwise-frontend
+    ports:
+      - "5173:80"              # host:container
+    depends_on:
+      - backend
     networks:
       - waterwise-net
 

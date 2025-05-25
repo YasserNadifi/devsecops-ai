@@ -13,13 +13,16 @@ export const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isPending, setIsPending] = useState(false);
+  const API_URL = import.meta.env.VITE_API_URL;
+
+  console.log(API_URL)
 
   async function handleSubmit(e) {
     e.preventDefault();
     setErrorMessage("");
     setIsPending(true);
     try {
-      const response = await axios.post("http://localhost:8080/api/users/login", 
+      const response = await axios.post(`${API_URL}/api/users/login`, 
         { 
           username :email, 
           password :password 
@@ -61,7 +64,6 @@ export const LoginPage = () => {
           <div className="relative mb-6">
             <input
               id="email"
-              type="email"
               name="email"
               placeholder="Enter your email address"
               value={email}

@@ -5,7 +5,7 @@ pipeline {
     SPRING_DATASOURCE_URL = "jdbc:mysql://mysql:3306/waterwise"
     SPRING_DATASOURCE_USERNAME = "root"
     SPRING_DATASOURCE_PASSWORD = "root"
-    KUBECONFIG = "C:/ProgramData/Jenkins/.kube/config"
+    // KUBECONFIG = "C:/ProgramData/Jenkins/.kube/config"
   }
 
   stages {
@@ -33,36 +33,36 @@ pipeline {
       }
     }
 
-    stage('Lancer les conteneurs') {
-      steps {
-        dir('WaterWise_app') {
-          bat 'docker-compose up -d'
-        }
-      }
-    }
+    // stage('Lancer les conteneurs') {
+    //   steps {
+    //     dir('WaterWise_app') {
+    //       bat 'docker-compose up -d'
+    //     }
+    //   }
+    // }
 
-    stage('Vérification') {
-      steps {
-        bat 'docker ps'
-      }
-    }
-    stage('Déploiement Kubernetes') {
-  steps {
-    dir('WaterWise_app/k8s') {
-      // Déployer MySQL
-      bat 'kubectl apply -f mysql_deployment.yaml'
+    // stage('Vérification') {
+    //   steps {
+    //     bat 'docker ps'
+    //   }
+    // }
+//     stage('Déploiement Kubernetes') {
+//   steps {
+//     dir('WaterWise_app/k8s') {
+//       // Déployer MySQL
+//       bat 'kubectl apply -f mysql_deployment.yaml'
 
-      // Déployer le backend WaterWise
-      bat 'kubectl apply -f bakcend_deployment.yaml'
+//       // Déployer le backend WaterWise
+//       bat 'kubectl apply -f bakcend_deployment.yaml'
 
-      // Vérifier les pods déployés
-      bat 'kubectl get pods'
+//       // Vérifier les pods déployés
+//       bat 'kubectl get pods'
 
-      // Vérifier les services et ports exposés
-          bat 'kubectl get svc'
-    }
-  }
-}
+//       // Vérifier les services et ports exposés
+//           bat 'kubectl get svc'
+//     }
+//   }
+// }
 
   }
 }

@@ -18,6 +18,7 @@ export default function FieldInfoPage() {
   const [weather, setWeather] = useState(null);
   const [crop,setCrop]=useState(null);
   const [surface,setSurface]=useState(null);
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     if(selectedField){
@@ -32,11 +33,11 @@ export default function FieldInfoPage() {
         .then(res => setWeather(res.data))
         .catch(console.error);
       axios
-        .get(`http://localhost:8080/api/crops/${selectedField.cropId}`)
+        .get(`${API_URL}/api/crops/${selectedField.cropId}`)
         .then(res => setCrop(res.data))
         .catch(console.error);
         axios
-        .get(`http://localhost:8080/api/fields/surface/${selectedField.cropId}`)
+        .get(`${API_URL}/api/fields/surface/${selectedField.cropId}`)
         .then(res => setSurface(res.data))
         .catch(console.error);
       
@@ -66,7 +67,7 @@ useEffect(() => {
           return;
         }
         const userId = localStorage.getItem('current_user');
-        const response = await axios.get(`http://localhost:8080/api/fields/user/${userId}`);
+        const response = await axios.get(`${API_URL}/api/fields/user/${userId}`);
         setData(response.data);
       } catch (err) {
         alert("Error: " + err.message);
@@ -93,7 +94,7 @@ useEffect(() => {
     setWateringReq(null);
     try {
       setSelectedField(field);
-      const wateringReqResponse = await axios.get(`http://localhost:8080/api/irrigation/weekly-needs/${field.cropId}`);
+      const wateringReqResponse = await axios.get(`${API_URL}/api/irrigation/weekly-needs/${field.cropId}`);
       setWateringReq(wateringReqResponse.data);
     } catch (err) {
       alert("Error: " + err.message);
@@ -104,7 +105,7 @@ useEffect(() => {
     const confirmDelete = window.confirm("Are you sure you want to delete this field?");
   if (!confirmDelete) return;
 
-    await axios.delete(`http://localhost:8080/api/fields/${fieldId}`);
+    await axios.delete(`${API_URL}/api/fields/${fieldId}`);
 
   fetchFields();
   if (selectedField?.id === fieldId) {

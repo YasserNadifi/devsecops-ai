@@ -33,6 +33,7 @@ pipeline {
             docker compose images -q backend
             '''
             def backendId = sh(script: 'docker compose images -q backend', returnStdout: true).trim()
+            echo "Frontend image ID: '${backendId}'"
             sh "docker tag ${backendId} ${env.BACKEND_IMAGE}:latest"
             sh "docker push ${env.BACKEND_IMAGE}:latest"
           }

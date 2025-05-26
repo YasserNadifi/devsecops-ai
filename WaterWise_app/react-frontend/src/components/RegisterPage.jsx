@@ -9,7 +9,7 @@ import { ArrowRightIcon } from "@heroicons/react/20/solid";
 import { Link } from "react-router-dom";
 
 export const RegisterPage = () => {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -28,7 +28,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     setIsPending(true);
 
     try {
-      const response = await axios.post(`${API_URL}/api/users/register`, { username : email,password : password });
+      const response = await axios.post(`${API_URL}/api/users/register`, { username : username,password : password });
       console.log(response.data)
       if (response.status === 200) {
         localStorage.setItem('current_user',response.data.id)
@@ -57,20 +57,20 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
             Sign up
           </h1>
 
-          {/* Email */}
+          
           <label
-            htmlFor="email"
+            htmlFor="username"
             className="block text-gray-900 text-xs font-medium mb-2"
           >
-            Email
+            Username
           </label>
           <div className="relative mb-6">
             <input
-              id="email"
-              name="email"
-              placeholder="Enter your email address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="username"
+              name="username"
+              placeholder="Enter your username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
               className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
             />

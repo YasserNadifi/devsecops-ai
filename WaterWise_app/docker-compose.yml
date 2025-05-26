@@ -33,8 +33,8 @@ services:
       - waterwise-net
 
   frontend:
+    image : yasser2003/waterwise-frontend:latest
     build:
-      image : yasser2003/waterwise-frontend:latest
       context: ./react-frontend
       dockerfile: Dockerfile
       args:

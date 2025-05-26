@@ -17,8 +17,8 @@ RUN VITE_API_URL=$VITE_API_URL npm run build
 # Stage 2: Serve with Nginx
 FROM nginx:alpine
 
-# Clean default html directory
-RUN rm -rf /usr/share/nginx/html/*
+# Overwrite default Nginx site config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy build files
 COPY --from=build /app/dist /usr/share/nginx/html

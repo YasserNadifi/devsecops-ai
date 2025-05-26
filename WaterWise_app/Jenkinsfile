@@ -1,68 +1,70 @@
 pipeline {
   agent any
-
   environment {
-    SPRING_DATASOURCE_URL = "jdbc:mysql://mysql:3306/waterwise"
-    SPRING_DATASOURCE_USERNAME = "root"
-    SPRING_DATASOURCE_PASSWORD = "root"
-    // KUBECONFIG = "C:/ProgramData/Jenkins/.kube/config"
+    DOCKERHUB_CREDENTIALS = 'docker-hub-creds'  
+    BACKEND_IMAGE         = 'yourdockerhubuser/waterwise-backend'
+    FRONTEND_IMAGE        = 'yourdockerhubuser/waterwise-frontend'
+  }
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+
+    stage('Docker Login') {
+      steps {
+        withCredentials([usernamePassword(
+          credentialsId: env.DOCKERHUB_CREDENTIALS,
+          usernameVariable: 'DOCKER_USER',
+          passwordVariable: 'DOCKER_PASS'
+        )]) {
+          sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
+        }
+      }
+    }
+
+    stage('Build Images') {
+      steps {
+        sh 'docker-compose build --pull'
+      }
+    }
+
+    stage('Tag & Push Backend') {
+      steps {
+        script {
+          def backendId = sh(script: 'docker-compose images -q backend', returnStdout: true).trim()
+          sh "docker tag ${backendId} ${env.BACKEND_IMAGE}:latest"
+          sh "docker push ${env.BACKEND_IMAGE}:latest"
+        }
+      }
+    }
+
+    stage('Tag & Push Frontend') {
+      steps {
+        script {
+          def frontendId = sh(script: 'docker-compose images -q frontend', returnStdout: true).trim()
+          sh "docker tag ${frontendId} ${env.FRONTEND_IMAGE}:latest"
+          sh "docker push ${env.FRONTEND_IMAGE}:latest"
+        }
+      }
+    }
+
+    stage('Cleanup') {
+      steps {
+        sh 'docker logout'
+        // Optionally clean up local images
+        sh "docker rmi ${env.BACKEND_IMAGE}:latest ${env.FRONTEND_IMAGE}:latest || true"
+      }
+    }
   }
 
-  stages {
-    stage('Tests') {
-      steps {
-        dir('WaterWise_app') {
-          bat '''
-             rmdir /s /q target
-            docker run --rm -v "%cd%":/app -w /app ^
-              --user root ^
-              -e SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/water_wise ^
-              -e SPRING_DATASOURCE_USERNAME=root ^
-              -e SPRING_DATASOURCE_PASSWORD=Hamza@0671240308 ^
-              maven:3.9.4-eclipse-temurin-21 mvn test
-          '''
-        }
-      }
+  post {
+    always {
+      echo 'Pipeline finished.'
     }
-
-    stage('Build Docker') {
-      steps {
-        dir('WaterWise_app') {
-          bat 'docker-compose build'
-        }
-      }
+    failure {
+      echo 'One or more stages failed.'
     }
-
-    // stage('Lancer les conteneurs') {
-    //   steps {
-    //     dir('WaterWise_app') {
-    //       bat 'docker-compose up -d'
-    //     }
-    //   }
-    // }
-
-    // stage('Vérification') {
-    //   steps {
-    //     bat 'docker ps'
-    //   }
-    // }
-//     stage('Déploiement Kubernetes') {
-//   steps {
-//     dir('WaterWise_app/k8s') {
-//       // Déployer MySQL
-//       bat 'kubectl apply -f mysql_deployment.yaml'
-
-//       // Déployer le backend WaterWise
-//       bat 'kubectl apply -f bakcend_deployment.yaml'
-
-//       // Vérifier les pods déployés
-//       bat 'kubectl get pods'
-
-//       // Vérifier les services et ports exposés
-//           bat 'kubectl get svc'
-//     }
-//   }
-// }
-
   }
 }

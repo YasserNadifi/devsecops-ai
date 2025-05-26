@@ -17,14 +17,14 @@ pipeline {
 
     stage('Build Images') {
       steps {
-        sh 'docker-compose build --pull'
+        sh 'docker compose build --pull'
       }
     }
 
     stage('Tag & Push Backend') {
       steps {
         script {
-          def backendId = sh(script: 'docker-compose images -q backend', returnStdout: true).trim()
+          def backendId = sh(script: 'docker compose images -q backend', returnStdout: true).trim()
           sh "docker tag ${backendId} ${env.BACKEND_IMAGE}:latest"
           sh "docker push ${env.BACKEND_IMAGE}:latest"
         }
@@ -34,7 +34,7 @@ pipeline {
     stage('Tag & Push Frontend') {
       steps {
         script {
-          def frontendId = sh(script: 'docker-compose images -q frontend', returnStdout: true).trim()
+          def frontendId = sh(script: 'docker compose images -q frontend', returnStdout: true).trim()
           sh "docker tag ${frontendId} ${env.FRONTEND_IMAGE}:latest"
           sh "docker push ${env.FRONTEND_IMAGE}:latest"
         }

@@ -13,7 +13,7 @@ pipeline {
           sh '''
             rm -rf target
             ls
-            docker run --rm -v "$PWD":/app -w /app \
+            docker run --rm -v /var/jenkins_home/workspace/react-pipeline-1/WaterWise_app:/app -w /app \
               --user root \
               -e SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/water_wise \
               -e SPRING_DATASOURCE_USERNAME=root \

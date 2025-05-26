@@ -17,7 +17,9 @@ pipeline {
 
     stage('Build Images') {
       steps {
-        sh 'docker compose build --pull'
+        dir('WaterWise_app') {
+          sh 'docker compose build --pull'
+        }
       }
     }
 

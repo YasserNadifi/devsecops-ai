@@ -1,18 +1,16 @@
 pipeline {
   agent any
   environment {
-    DOCKERHUB_CREDENTIALS = 'docker-hub-creds'  
-    BACKEND_IMAGE         = 'yourdockerhubuser/waterwise-backend'
-    FRONTEND_IMAGE        = 'yourdockerhubuser/waterwise-frontend'
+    DOCKERHUB_CREDENTIALS = 'dockerhub-creds'  
+    BACKEND_IMAGE         = 'yasser2003/waterwise-backend'
+    FRONTEND_IMAGE        = 'yasser2003/waterwise-frontend'
   }
   stages {
 
     stage('Docker Login') {
       steps {
         withCredentials([usernamePassword(
-          credentialsId: env.DOCKERHUB_CREDENTIALS,
-          usernameVariable: 'DOCKER_USER',
-          passwordVariable: 'DOCKER_PASS'
+          credentialsId: env.DOCKERHUB_CREDENTIALS
         )]) {
           sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
         }
@@ -48,7 +46,6 @@ pipeline {
     stage('Cleanup') {
       steps {
         sh 'docker logout'
-        // Optionally clean up local images
         sh "docker rmi ${env.BACKEND_IMAGE}:latest ${env.FRONTEND_IMAGE}:latest || true"
       }
     }

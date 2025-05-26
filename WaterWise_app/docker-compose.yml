@@ -38,7 +38,7 @@ services:
       context: ./react-frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: http://localhost:8081
+        VITE_API_URL: http://backend-service:8081
     container_name: waterwise-frontend
     ports:
       - "5173:80"              # host:container

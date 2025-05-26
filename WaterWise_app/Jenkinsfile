@@ -27,6 +27,11 @@ pipeline {
       steps {
         script {
           dir('WaterWise_app') {
+            sh '''
+            docker compose images
+            docker compose images backend
+            docker compose images -q backend
+            '''
             def backendId = sh(script: 'docker compose images -q backend', returnStdout: true).trim()
             sh "docker tag ${backendId} ${env.BACKEND_IMAGE}:latest"
             sh "docker push ${env.BACKEND_IMAGE}:latest"

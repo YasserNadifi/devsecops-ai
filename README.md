@@ -1,6 +1,6 @@
 # WaterWise
 
-WaterWise is a smart solution designed to help farmers optimize irrigation and enhance crop health. By leveraging NASA’s Prediction Of Worldwide Energy Resources (POWER) data along with rainfall and crop type inputs, WaterWise provides farmers with a precise 6-day water schedule tailored to their fields’ unique needs.
+WaterWise is a smart solution designed to help farmers optimize irrigation and enhance crop health. By leveraging NASA’s Prediction Of Worldwide Energy Resources data along with rainfall and crop type inputs, WaterWise provides farmers with a precise 6-day water schedule tailored to their fields’ unique needs.
 
 ## Why WaterWise?
 

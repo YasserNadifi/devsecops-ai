@@ -15,48 +15,23 @@ pipeline {
       }
     }
 
-    stage('Build Images') {
+    stage('Build & Push') {
       steps {
         dir('WaterWise_app') {
+          // 1) build both services
           sh 'docker compose build --pull'
+
+          // 2) push them up by service name
+          sh 'docker compose push backend'
+          sh 'docker compose push frontend'
         }
       }
     }
-
-    stage('Tag & Push Backend') {
-      steps {
-        script {
-          dir('WaterWise_app') {
-            sh '''
-            docker compose images
-            docker compose images backend
-            docker compose images -q backend
-            '''
-            def backendId = sh(script: 'docker compose images -q backend', returnStdout: true).trim()
-            echo "Frontend image ID: '${backendId}'"
-            sh "docker tag ${backendId} ${env.BACKEND_IMAGE}:latest"
-            sh "docker push ${env.BACKEND_IMAGE}:latest"
-          }
-        }
-      }
-    }
-
-    stage('Tag & Push Frontend') {
-      steps {
-        script {
-          dir('WaterWise_app') {
-            def frontendId = sh(script: 'docker compose images -q frontend', returnStdout: true).trim()
-            sh "docker tag ${frontendId} ${env.FRONTEND_IMAGE}:latest"
-            sh "docker push ${env.FRONTEND_IMAGE}:latest"
-          }
-        }
-      }
-    }
-
+    
     stage('Cleanup') {
       steps {
         sh 'docker logout'
-        sh "docker rmi ${env.BACKEND_IMAGE}:latest ${env.FRONTEND_IMAGE}:latest || true"
+        sh 'docker rmi yourdockerhubuser/waterwise-backend:latest yourdockerhubuser/waterwise-frontend:latest || true'
       }
     }
   }

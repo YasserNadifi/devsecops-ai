@@ -6,11 +6,6 @@ pipeline {
     FRONTEND_IMAGE        = 'yourdockerhubuser/waterwise-frontend'
   }
   stages {
-    stage('Checkout') {
-      steps {
-        checkout scm
-      }
-    }
 
     stage('Docker Login') {
       steps {

@@ -7,52 +7,52 @@ pipeline {
   }
   stages {
 
-    // stage('Tests') {
-    //   steps {
-    //     dir('WaterWise_app') {
-    //       script {
-    //         docker.image('maven:3.9.4-eclipse-temurin-21').inside('--user root') {
-    //           sh '''
-    //             rm -rf target
-    //             mvn test \
-    //               -Dspring.datasource.url=jdbc:mysql://host.docker.internal:3306/water_wise \
-    //               -Dspring.datasource.username=root \
-    //               -Dspring.datasource.password=password0664938616
-    //           '''
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
+    stage('Tests') {
+      steps {
+        dir('WaterWise_app') {
+          script {
+            docker.image('maven:3.9.4-eclipse-temurin-21').inside('--user root') {
+              sh '''
+                rm -rf target
+                mvn test \
+                  -Dspring.datasource.url=jdbc:mysql://host.docker.internal:3306/water_wise \
+                  -Dspring.datasource.username=root \
+                  -Dspring.datasource.password=password0664938616
+              '''
+            }
+          }
+        }
+      }
+    }
 
 
-    // stage('Docker Login') {
-    //   steps {
-    //     withCredentials([usernamePassword(credentialsId: env.DOCKERHUB_CREDENTIALS, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-    //       sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
-    //     }
-    //   }
-    // }
+    stage('Docker Login') {
+      steps {
+        withCredentials([usernamePassword(credentialsId: env.DOCKERHUB_CREDENTIALS, usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+          sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
+        }
+      }
+    }
 
-    // stage('Build & Push') {
-    //   steps {
-    //     dir('WaterWise_app') {
-    //       // 1) build both services
-    //       sh 'docker compose build --pull'
+    stage('Build & Push') {
+      steps {
+        dir('WaterWise_app') {
+          // 1) build both services
+          sh 'docker compose build --pull'
 
-    //       // 2) push them up by service name
-    //       sh 'docker compose push backend'
-    //       sh 'docker compose push frontend'
-    //     }
-    //   }
-    // }
+          // 2) push them up by service name
+          sh 'docker compose push backend'
+          sh 'docker compose push frontend'
+        }
+      }
+    }
     
-    // stage('Cleanup') {
-    //   steps {
-    //     sh 'docker logout'
-    //     sh 'docker rmi yourdockerhubuser/waterwise-backend:latest yourdockerhubuser/waterwise-frontend:latest || true'
-    //   }
-    // }
+    stage('Cleanup') {
+      steps {
+        sh 'docker logout'
+        sh 'docker rmi yourdockerhubuser/waterwise-backend:latest yourdockerhubuser/waterwise-frontend:latest || true'
+      }
+    }
 
     stage('Deploy to Kubernetes') {
       steps {
@@ -67,8 +67,6 @@ pipeline {
 
               kubectl delete -f frontend-deployment.yml --ignore-not-found
               kubectl delete -f backend-deployment.yml --ignore-not-found
-              kubectl delete -f mysql-deployment.yml --ignore-not-found
-              kubectl delete -f namespace.yml --ignore-not-found
               
             
               kubectl apply -f namespace.yml

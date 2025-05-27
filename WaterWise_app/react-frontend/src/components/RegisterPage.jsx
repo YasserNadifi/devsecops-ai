@@ -14,6 +14,7 @@ export const RegisterPage = () => {
   const [confirm, setConfirm] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isPending, setIsPending] = useState(false);
+  const API_URL = import.meta.env.VITE_API_URL;
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -27,7 +28,9 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
     setIsPending(true);
 
     try {
-      const response = await axios.post(`http://localhost:8080/api/users/register`, { username : username,password : password });
+
+      const response = await axios.post(`${API_URL}/api/users/register`, { username : username,password : password });
+
       console.log(response.data)
       if (response.status === 200) {
         localStorage.setItem('current_user',response.data.id)

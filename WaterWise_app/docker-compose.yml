@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  backend:
+    image: yasser2003/waterwise-backend:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: waterwise-backend
+    ports:
+      - "8081:8080"            # host:container
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/waterwise
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    networks:
+      - waterwise-net
+    volumes:
+      - C:\Users\PC\.m2:/root/.m2
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: waterwise
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - waterwise-net
+
+  frontend:
+    image : yasser2003/waterwise-frontend:latest
+    build:
+      context: ./react-frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:30080
+    container_name: waterwise-frontend
+    ports:
+      - "5173:80"              # host:container
+    depends_on:
+      - backend
+    networks:
+      - waterwise-net
+
+volumes:
+  mysql_data:
+
+networks:
+  waterwise-net:

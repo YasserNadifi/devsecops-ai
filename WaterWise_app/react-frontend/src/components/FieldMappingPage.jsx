@@ -12,6 +12,7 @@ export const FieldMappingPage = () => {
   const [hasPolygon, setHasPolygon] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const featureGroupRef = useRef(null);
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const onCreated = (e) => {
     const layer = e.layer;
@@ -52,7 +53,7 @@ export const FieldMappingPage = () => {
   const handleModalSubmit = async (info) => {
     try {
       const userId = localStorage.getItem('current_user')
-      const field_response = await axios.post(`http://localhost:8080/api/fields`, 
+      const field_response = await axios.post(`${API_URL}/api/fields`, 
         { 
           name : info.fieldName,
           coordinates : coordinates,
@@ -69,7 +70,7 @@ console.log({
           fieldId: fieldId
         })
 
-      const crop_response = await axios.post(`http://localhost:8080/api/crops`, 
+      const crop_response = await axios.post(`${API_URL}/api/crops`, 
         { 
           cropType : info.cropType,
           growthStage : info.growthStage,

@@ -62,15 +62,6 @@ jobs :
       - name: Make mvnw executable (important)
         run: chmod +x ./backend/mvnw
 
-      - name: Verify mvnw and run dependency tree (debug)
-        working-directory: ./backend
-        run: |
-          echo "Maven wrapper location: $(pwd)/mvnw"
-          ./mvnw -v
-          # ensure dependency:tree runs — Snyk uses a similar command
-          ./mvnw dependency:tree -DoutputType=dot --batch-mode --non-recursive --file="pom.xml"
-        # let this step fail so you get debug logs if something's wrong
-
       - name: Setup Node (for Snyk CLI)
         uses: actions/setup-node@v4
         with:
@@ -99,3 +90,45 @@ jobs :
         with:
           name: snyk-results
           path: snyk-backend-result.json
+
+  # 3) SAST scan with CodeQL (checkout, download artifacts, build, run CodeQL analyze)
+  sast-codeql:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.BUILD_ARTIFACT_NAME }}
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: java
+
+      - name: Build (for CodeQL to see compiled classes)
+        working-directory: backend
+        run: |
+          chmod +x mvnw
+          ./mvnw -B -DskipTests package
+
+      - name: Create CodeQL database
+        working-directory: backend
+        run: |
+          # create a db named 'codeql-db' by running the mvn build command (CodeQL records compile artifacts)
+          codeql database create codeql-db --language=java --command="./mvnw -B -DskipTests package"
+
+      - name: Analyze CodeQL database -> SARIF
+        working-directory: backend
+        run: |
+          # run queries and output SARIF; adjust query pack if you have custom qlpacks
+          codeql database analyze codeql-db --format=sarif-latest --output="${{ github.workspace }}/codeql-results.sarif" --threads=2
+
+      - name: Upload CodeQL SARIF artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: codeql-sarif
+          path: codeql-results.sarif

@@ -95,10 +95,6 @@ jobs :
   sast-codeql:
     needs: build-and-test
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        language: [ 'java-kotlin' ]
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -145,7 +141,7 @@ jobs :
           pushd backend
           chmod +x mvnw
           # the command below will be logged; it is recorded by CodeQL extractor
-          $CODEQL database create "$PWD/../codeql-db" --language=java --command="./mvnw -B -DskipTests package"
+          $CODEQL database create "$PWD/../codeql-db" --language=java --command="./mvnw clean package -DskipTests -Dspring-boot.repackage.skip=true"
           popd
 
       - name: Analyze DB -> SARIF (use detected CLI)

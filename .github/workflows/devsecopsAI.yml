@@ -95,6 +95,10 @@ jobs :
   sast-codeql:
     needs: build-and-test
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'java-kotlin' ]
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4

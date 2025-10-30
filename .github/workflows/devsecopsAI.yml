@@ -45,3 +45,45 @@ jobs :
         with:
           name: ${{ env.BUILD_ARTIFACT_NAME }}
           path: ./ci_artifacts
+
+  # 2) SCA scan with Snyk (checkout build artifacts, run Snyk against pom.xml then upload results)
+  sca-snyk:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.BUILD_ARTIFACT_NAME }}
+
+      - name: Setup Node (for Snyk CLI)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      - name: Authenticate Snyk
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          snyk auth $SNYK_TOKEN || true
+
+      - name: Run Snyk SCA (backend - Maven)
+        working-directory: backend
+        run: |
+          # run Snyk test on the backend pom (output json to file)
+          snyk test --file=pom.xml --json > "${{ github.workspace }}/snyk-backend-result.json" || true
+
+          # verify the report
+          ls -la "${{ github.workspace }}/snyk-backend-result.json"
+
+      - name: Upload Snyk results
+        uses: actions/upload-artifact@v4
+        with:
+          name: snyk-results
+          path: snyk-backend-result.json

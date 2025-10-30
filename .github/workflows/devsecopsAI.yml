@@ -115,23 +115,40 @@ jobs :
         with:
           languages: java
 
-      - name: Build (for CodeQL to see compiled classes)
-        working-directory: backend
+      # - name: Build (for CodeQL to see compiled classes)
+      #   working-directory: backend
+      #   run: |
+      #     chmod +x mvnw
+      #     ./mvnw -B -DskipTests package
+
+      - name: Locate CodeQL CLI and verify
+        id: find_codeql
         run: |
+          # try to find the codeql binary installed by the init action
+          CODEQL_BIN=$(find /opt/hostedtoolcache/CodeQL -type f -name codeql -print -quit || true)
+          if [ -z "$CODEQL_BIN" ]; then
+            echo "ERROR: codeql binary not found under /opt/hostedtoolcache/CodeQL"
+            echo "PATH: $PATH"
+            exit 1
+          fi
+          echo "codeql=$CODEQL_BIN" >> $GITHUB_OUTPUT
+          $CODEQL_BIN version
+
+      - name: Create CodeQL database (use detected CLI)
+        run: |
+          CODEQL="${{ steps.find_codeql.outputs.codeql }}"
+          # create a db by running the mvn package command under backend
+          pushd backend
           chmod +x mvnw
-          ./mvnw -B -DskipTests package
+          # the command below will be logged; it is recorded by CodeQL extractor
+          $CODEQL database create "$PWD/../codeql-db" --language=java --command="./mvnw -B -DskipTests package"
+          popd
 
-      - name: Create CodeQL database
-        working-directory: backend
+      - name: Analyze DB -> SARIF (use detected CLI)
         run: |
-          # create a db named 'codeql-db' by running the mvn build command (CodeQL records compile artifacts)
-          codeql database create codeql-db --language=java --command="./mvnw -B -DskipTests package"
+          CODEQL="${{ steps.find_codeql.outputs.codeql }}"
+          $CODEQL database analyze "$GITHUB_WORKSPACE/../codeql-db" --format=sarif-latest --output="${{ github.workspace }}/codeql-results.sarif" --threads=2
 
-      - name: Analyze CodeQL database -> SARIF
-        working-directory: backend
-        run: |
-          # run queries and output SARIF; adjust query pack if you have custom qlpacks
-          codeql database analyze codeql-db --format=sarif-latest --output="${{ github.workspace }}/codeql-results.sarif" --threads=2
 
       - name: Upload CodeQL SARIF artifact
         uses: actions/upload-artifact@v4

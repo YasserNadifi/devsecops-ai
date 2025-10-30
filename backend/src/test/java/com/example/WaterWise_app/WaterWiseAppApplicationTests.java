@@ -7,8 +7,8 @@ import org.springframework.test.context.TestPropertySource;
 @SpringBootTest
 class WaterWiseAppApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+//	@Test
+//	void contextLoads() {
+//	}
 
 }

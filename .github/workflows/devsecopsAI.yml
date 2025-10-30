@@ -1,0 +1,47 @@
+name : DevSecOps pipeline
+
+on : 
+  push:
+
+env:
+  BUILD_ARTIFACT_NAME: build-artifacts
+
+jobs :
+  # 1) checkout, build, run unit tests, upload build artifacts
+  build-and-test:
+    runs-on: ubuntu-latest
+    outputs:
+      artifact_uploaded: true
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Run unit tests (Maven)
+        working-directory: backend
+        run: |
+          chmod +x mvnw
+          ./mvnw -B test
+
+      - name: Package backend (skip tests)
+        working-directory: backend
+        run: |
+          ./mvnw -B -DskipTests package
+
+      - name: Collect build artifacts
+        run: |
+          mkdir -p ./ci_artifacts/backend
+          cp ${GITHUB_WORKSPACE}/backend/target/*.jar ./ci_artifacts/backend/ || true
+          # include any other files you want preserved (e.g. config, compiled resources)
+          ls -la ./ci_artifacts || true
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.BUILD_ARTIFACT_NAME }}
+          path: ./ci_artifacts

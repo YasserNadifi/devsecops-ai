@@ -1,14 +1,9 @@
-# Étape 1 : build avec Maven + Java 21
 FROM maven:3.9.4-eclipse-temurin-21 AS builder
 WORKDIR /app
-
-# COPY pom.xml .
-# RUN mvn dependency:go-offline
 
 COPY . .
 RUN mvn clean package -DskipTests
 
-# Étape 2 : image finale (runtime Java 21)
 FROM eclipse-temurin:21-jdk
 WORKDIR /app
 COPY --from=builder /app/target/*.jar app.jar

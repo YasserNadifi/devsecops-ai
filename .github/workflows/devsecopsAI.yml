@@ -137,12 +137,15 @@ jobs :
       - name: Create CodeQL database (use detected CLI)
         run: |
           CODEQL="${{ steps.find_codeql.outputs.codeql }}"
-          # create a db by running the mvn package command under backend
-          pushd backend
+          # create database in workspace
+          mkdir -p "${{ github.workspace }}/codeql-db"
+          cd backend
           chmod +x mvnw
           # the command below will be logged; it is recorded by CodeQL extractor
-          $CODEQL database create "$PWD/../codeql-db" --language=java --command="./mvnw clean compile -DskipTests"
-          popd
+          $CODEQL database create "${{ github.workspace }}/codeql-db" \
+            --language=java \
+            --source-root="${{ github.workspace }}/backend" \
+            --command="./mvnw clean compile -DskipTests"
 
       - name: Analyze DB -> SARIF (use detected CLI)
         run: |

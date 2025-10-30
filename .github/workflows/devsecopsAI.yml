@@ -172,7 +172,7 @@ jobs :
         with:
           name: pushed-image-info
           path: pushed-image.txt
-          
+
 # 5) Pull the docker images (backend + mysql), start containers, run DAST with OWASP ZAP, upload results, clean up
   dast-owasp-zap:
     needs: build-and-push-image
@@ -235,7 +235,7 @@ jobs :
           docker run --rm \
             --network devsecops-test-net \
             -v "${{ github.workspace }}/zap-output:/zap/wrk:rw" \
-            owasp/zap2docker-stable \
+            ghcr.io/zaproxy/zaproxy:stable \
             zap-baseline.py \
             -t http://backend-dev:8080 \
             -r zap-report.html \

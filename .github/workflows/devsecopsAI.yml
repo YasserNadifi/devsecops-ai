@@ -172,3 +172,84 @@ jobs :
         with:
           name: pushed-image-info
           path: pushed-image.txt
+          
+# 5) Pull the docker images (backend + mysql), start containers, run DAST with OWASP ZAP, upload results, clean up
+  dast-owasp-zap:
+    needs: build-and-push-image
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Download pushed image info
+        uses: actions/download-artifact@v4
+        with:
+          name: pushed-image-info
+          path: ./
+
+      - name: Read pushed image name
+        id: read_image
+        run: |
+          IMAGE=$(head -n 1 pushed-image.txt)
+          echo "image=$IMAGE" >> $GITHUB_OUTPUT
+
+      - name: Pull images
+        run: |
+          docker pull "${{ steps.read_image.outputs.image }}"
+          docker pull mysql:8.0
+
+      - name: Create docker network
+        run: docker network create devsecops-test-net
+
+      - name: Start MySQL container
+        run: |
+          docker run -d \
+            --name mysql-dev \
+            --network devsecops-test-net \
+            -e MYSQL_ROOT_PASSWORD=root \
+            -e MYSQL_DATABASE=waterwise \
+            mysql:8.0
+          
+          echo "Waiting for MySQL..."
+          sleep 20
+
+      - name: Start backend container
+        run: |
+          docker run -d \
+            --name backend-dev \
+            --network devsecops-test-net \
+            -p 8080:8080 \
+            -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql-dev:3306/waterwise \
+            -e SPRING_DATASOURCE_USERNAME=root \
+            -e SPRING_DATASOURCE_PASSWORD=root \
+            -e SPRING_JPA_HIBERNATE_DDL_AUTO=update \
+            ${{ steps.read_image.outputs.image }}
+          
+          echo "Waiting for backend..."
+          sleep 30
+
+      - name: Run OWASP ZAP baseline scan
+        run: |
+          mkdir -p zap-output
+          docker run --rm \
+            --network devsecops-test-net \
+            -v "${{ github.workspace }}/zap-output:/zap/wrk:rw" \
+            owasp/zap2docker-stable \
+            zap-baseline.py \
+            -t http://backend-dev:8080 \
+            -r zap-report.html \
+            -J zap-report.json || true
+
+      - name: Upload DAST reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dast-zap-reports
+          path: zap-output/
+
+      - name: Cleanup
+        if: always()
+        run: |
+          docker rm -f backend-dev mysql-dev || true
+          docker network rm devsecops-test-net || true

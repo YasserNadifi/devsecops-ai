@@ -232,6 +232,7 @@ jobs :
       - name: Run OWASP ZAP baseline scan
         run: |
           mkdir -p zap-output
+          chmod 777 zap-output  # Allow ZAP container to write
           docker run --rm \
             --network devsecops-test-net \
             -v "${{ github.workspace }}/zap-output:/zap/wrk:rw" \

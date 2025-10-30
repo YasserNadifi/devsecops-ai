@@ -141,7 +141,7 @@ jobs :
           pushd backend
           chmod +x mvnw
           # the command below will be logged; it is recorded by CodeQL extractor
-          $CODEQL database create "$PWD/../codeql-db" --language=java --command="./mvnw clean package -DskipTests -Dspring-boot.repackage.skip=true"
+          $CODEQL database create "$PWD/../codeql-db" --language=java --command="./mvnw clean compile -DskipTests"
           popd
 
       - name: Analyze DB -> SARIF (use detected CLI)

@@ -59,6 +59,18 @@ jobs :
         with:
           name: ${{ env.BUILD_ARTIFACT_NAME }}
 
+      - name: Make mvnw executable (important)
+        run: chmod +x ./backend/mvnw
+
+      - name: Verify mvnw and run dependency tree (debug)
+        working-directory: ./backend
+        run: |
+          echo "Maven wrapper location: $(pwd)/mvnw"
+          ./mvnw -v
+          # ensure dependency:tree runs — Snyk uses a similar command
+          ./mvnw dependency:tree -DoutputType=dot --batch-mode --non-recursive --file="pom.xml"
+        # let this step fail so you get debug logs if something's wrong
+
       - name: Setup Node (for Snyk CLI)
         uses: actions/setup-node@v4
         with:

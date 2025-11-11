@@ -1,0 +1,16 @@
+[
+  {
+    "rule_id": "java/spring-disabled-csrf-protection",
+    "name": "java/spring-disabled-csrf-protection",
+    "description": "Disabling CSRF protection makes the application vulnerable to a Cross-Site Request Forgery (CSRF) attack.",
+    "message": "CSRF vulnerability due to protection being disabled.",
+    "file": "backend/src/main/java/com/example/WaterWise_app/Security/SecurityFilterConfig.java",
+    "line": 19,
+    "severity": "error",
+    "security_score": "8.8",
+    "tags": [
+      "security",
+      "external/cwe/cwe-352"
+    ]
+  }
+]
